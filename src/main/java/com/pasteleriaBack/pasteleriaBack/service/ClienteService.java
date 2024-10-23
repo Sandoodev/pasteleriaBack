@@ -15,25 +15,25 @@ public class ClienteService {
     @Autowired
     private ClienteRepository clienteRepository;
 
-    // Método para crear un nuevo cliente
+    // Crear un nuevo cliente
     public ResponseEntity<Cliente> createCliente(Cliente cliente) {
         // fijarse si falta agregar logica
         Cliente savedCliente = clienteRepository.save(cliente);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedCliente);
     }
 
-    // Método para obtener todos los clientes
+    // Obtener todos los clientes
     public List<Cliente> getAllClientes() {
         return clienteRepository.findAll();
     }
 
-    // Método para obtener un cliente por DNI
+    // Obtener un cliente por DNI
     public ResponseEntity<Cliente> getClienteByDni(Integer dni) {
         Optional<Cliente> cliente = clienteRepository.findById(dni);
         return cliente.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Método para actualizar un cliente existente
+    // Actualizar un cliente existente
     public ResponseEntity<Cliente> updateCliente(Integer dni, Cliente updatedCliente) {
         if (!clienteRepository.existsById(dni)) {
             return ResponseEntity.notFound().build();
@@ -43,7 +43,7 @@ public class ClienteService {
         return ResponseEntity.ok(savedCliente);
     }
 
-    // Método para eliminar un cliente
+    // Eliminar un cliente
     public ResponseEntity<Void> deleteCliente(Integer dni) {
         if (!clienteRepository.existsById(dni)) {
             return ResponseEntity.notFound().build();
@@ -52,5 +52,4 @@ public class ClienteService {
         return ResponseEntity.noContent().build();
     }
 
-    // Otros métodos
 }

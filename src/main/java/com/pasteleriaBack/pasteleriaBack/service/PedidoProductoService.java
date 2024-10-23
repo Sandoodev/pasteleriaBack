@@ -18,8 +18,9 @@ public class PedidoProductoService {
     }
 
     public List<PedidoProducto> listarPedidosProductos() {
+
         return pedidoProductoRepository.findAll();
     }
 
-    // Otros métodos según los requerimientos
+    // Otros métodos
 }

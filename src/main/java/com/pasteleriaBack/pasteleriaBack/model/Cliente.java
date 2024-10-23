@@ -1,6 +1,7 @@
 package com.pasteleriaBack.pasteleriaBack.model;
 
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "Clientes")
@@ -12,6 +13,9 @@ public class Cliente {
     private String cli_numCelu;
     private String cli_nroTelefonoFijo;
     private String cli_email;
+
+    @OneToMany(mappedBy = "cliente")
+    private List<Pedido> pedidos; // Relación con Pedidos
 
     // Getters y Setters
 
@@ -53,5 +57,13 @@ public class Cliente {
 
     public void setCli_email(String cli_email) {
         this.cli_email = cli_email;
+    }
+
+    public List<Pedido> getPedidos() {
+        return pedidos;
+    }
+
+    public void setPedidos(List<Pedido> pedidos) {
+        this.pedidos = pedidos;
     }
 }

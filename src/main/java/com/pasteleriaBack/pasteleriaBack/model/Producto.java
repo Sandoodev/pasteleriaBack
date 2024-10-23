@@ -1,6 +1,7 @@
 package com.pasteleriaBack.pasteleriaBack.model;
 
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "Productos")
@@ -20,6 +21,9 @@ public class Producto {
     private EstadoProductoENUM prod_estado; // tipo enum
 
     private String prod_titulo;
+
+    @OneToMany(mappedBy = "producto")
+    private List<PedidoProducto> pedidoProductos; // Relación con Pedidos_Productos
 
     // Getters y Setters
 
@@ -93,5 +97,13 @@ public class Producto {
 
     public void setProd_titulo(String prod_titulo) {
         this.prod_titulo = prod_titulo;
+    }
+
+    public List<PedidoProducto> getPedidoProductos() {
+        return pedidoProductos;
+    }
+
+    public void setPedidoProductos(List<PedidoProducto> pedidoProductos) {
+        this.pedidoProductos = pedidoProductos;
     }
 }

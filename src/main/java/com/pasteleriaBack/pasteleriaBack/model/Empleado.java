@@ -1,6 +1,7 @@
 package com.pasteleriaBack.pasteleriaBack.model;
 
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "Empleados")
@@ -22,6 +23,9 @@ public class Empleado {
 
     @Enumerated(EnumType.STRING)
     private RolEmpleadoENUM emp_rol; // Usando la enumeración RolEmpleado
+
+    @OneToMany(mappedBy = "empleado")
+    private List<Pedido> pedidos; // Relación con Pedidos
 
     // Getters y Setters
 
@@ -94,7 +98,6 @@ public class Empleado {
     }
 
     public void setEmp_jornadaLaboral(Integer emp_jornadaLaboral) {
-
         this.emp_jornadaLaboral = emp_jornadaLaboral;
     }
 
@@ -104,5 +107,13 @@ public class Empleado {
 
     public void setEmp_rol(RolEmpleadoENUM emp_rol) {
         this.emp_rol = emp_rol;
+    }
+
+    public List<Pedido> getPedidos() {
+        return pedidos;
+    }
+
+    public void setPedidos(List<Pedido> pedidos) {
+        this.pedidos = pedidos;
     }
 }

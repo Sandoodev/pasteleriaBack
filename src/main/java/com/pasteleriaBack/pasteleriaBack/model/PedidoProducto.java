@@ -15,7 +15,7 @@ public class PedidoProducto {
     private Producto producto;
 
     @ManyToOne
-    @MapsId("pedId") // Mapea el campo pedId de la clave compuesta
+    @MapsId("pedId") // Tmb mapea el campo pedId de la clave compuesta
     @JoinColumn(name = "ped_id", nullable = false)
     private Pedido pedido;
 

@@ -9,7 +9,10 @@ public class MotivoEliminacionPedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer mot_id;
 
-    private Integer ped_id;
+    @ManyToOne
+    @JoinColumn(name = "ped_id", nullable = false)
+    private Pedido pedido; // Relación con Pedidos
+
     private String ped_motivoEliminacion;
     private String descripcion;
 
@@ -23,12 +26,12 @@ public class MotivoEliminacionPedido {
         this.mot_id = mot_id;
     }
 
-    public Integer getPed_id() {
-        return ped_id;
+    public Pedido getPedido() {
+        return pedido;
     }
 
-    public void setPed_id(Integer ped_id) {
-        this.ped_id = ped_id;
+    public void setPedido(Pedido pedido) {
+        this.pedido = pedido;
     }
 
     public String getPed_motivoEliminacion() {

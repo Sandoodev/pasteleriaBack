@@ -4,10 +4,9 @@ import com.pasteleriaBack.pasteleriaBack.model.Producto;
 import com.pasteleriaBack.pasteleriaBack.service.ProductoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation .PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/productos")
@@ -15,7 +14,33 @@ public class ProductoController {
     @Autowired
     private ProductoService productoService;
 
+    @CrossOrigin
+    @GetMapping
+    public List<Producto> getAllProductos() {
+        return productoService.getAllProductos();
+    }
 
+    @CrossOrigin
+    @GetMapping("/{id}")
+    public ResponseEntity<Producto> getProductoById(@PathVariable Integer id) {
+        return productoService.getProductoById(id);
+    }
 
-    // Otros métodos
+    @CrossOrigin
+    @PostMapping
+    public ResponseEntity<Producto> createProducto(@RequestBody Producto producto) {
+        return productoService.createProducto(producto);
+    }
+
+    @CrossOrigin
+    @PutMapping("/{id}")
+    public ResponseEntity<Producto> updateProducto(@PathVariable Integer id, @RequestBody Producto updatedProducto) {
+        return productoService.updateProducto(id, updatedProducto);
+    }
+
+    @CrossOrigin
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProducto(@PathVariable Integer id) {
+        return productoService.deleteProducto(id);
+    }
 }

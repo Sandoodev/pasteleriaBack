@@ -1,9 +1,8 @@
 package com.pasteleriaBack.pasteleriaBack.model;
 
 import jakarta.persistence.*;
-
-import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Entity
 @Table(name = "Pedidos")
@@ -23,13 +22,25 @@ public class Pedido {
     @Enumerated(EnumType.STRING)
     private EstadoPedidoENUM ped_estado; // tipo enum
 
-    private Integer emp_dni;
+    @ManyToOne
+    @JoinColumn(name = "emp_dni", nullable = false)
+    private Empleado empleado; // Relación con Empleado
+
+    @ManyToOne
+    @JoinColumn(name = "cli_dni", nullable = false)
+    private Cliente cliente; // Relación con Cliente
+
+    @OneToMany(mappedBy = "pedido")
+    private List<PedidoProducto> pedidoProductos; // Relación con Pedidos_Productos
+
+    @OneToOne(mappedBy = "pedido")
+    private PedidoDomicilio pedidoDomicilio; // Relación con PedidoDomicilio
 
     @Column(name = "porcentajeComisionPedidoActual", nullable = false)
     private Double porcentajeComisionPedidoActual;
-    private Integer cli_dni;
 
     // Getters y Setters
+
 
     public Integer getPed_id() {
         return ped_id;
@@ -79,12 +90,36 @@ public class Pedido {
         this.ped_estado = ped_estado;
     }
 
-    public Integer getEmp_dni() {
-        return emp_dni;
+    public Empleado getEmpleado() {
+        return empleado;
     }
 
-    public void setEmp_dni(Integer emp_dni) {
-        this.emp_dni = emp_dni;
+    public void setEmpleado(Empleado empleado) {
+        this.empleado = empleado;
+    }
+
+    public Cliente getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
+
+    public List<PedidoProducto> getPedidoProductos() {
+        return pedidoProductos;
+    }
+
+    public void setPedidoProductos(List<PedidoProducto> pedidoProductos) {
+        this.pedidoProductos = pedidoProductos;
+    }
+
+    public PedidoDomicilio getPedidoDomicilio() {
+        return pedidoDomicilio;
+    }
+
+    public void setPedidoDomicilio(PedidoDomicilio pedidoDomicilio) {
+        this.pedidoDomicilio = pedidoDomicilio;
     }
 
     public Double getPorcentajeComisionPedidoActual() {
@@ -93,13 +128,5 @@ public class Pedido {
 
     public void setPorcentajeComisionPedidoActual(Double porcentajeComisionPedidoActual) {
         this.porcentajeComisionPedidoActual = porcentajeComisionPedidoActual;
-    }
-
-    public Integer getCli_dni() {
-        return cli_dni;
-    }
-
-    public void setCli_dni(Integer cli_dni) {
-        this.cli_dni = cli_dni;
     }
 }

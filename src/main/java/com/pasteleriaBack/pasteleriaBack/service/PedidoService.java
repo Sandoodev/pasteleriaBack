@@ -55,5 +55,5 @@ public class PedidoService {
         pedidoRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
-    // Otros métodos según los requerimientos
+    // Otros métodos
 }
