@@ -1,5 +1,7 @@
 package com.pasteleriaBack.pasteleriaBack.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.sql.Timestamp;
 import java.util.List;
@@ -24,13 +26,16 @@ public class Pedido {
 
     @ManyToOne
     @JoinColumn(name = "emp_dni", nullable = false)
+    @JsonManagedReference
     private Empleado empleado; // Relación con Empleado
 
     @ManyToOne
     @JoinColumn(name = "cli_dni", nullable = false)
+    @JsonBackReference
     private Cliente cliente; // Relación con Cliente
 
     @OneToMany(mappedBy = "pedido")
+    @JsonManagedReference // Esta parte se serializa y es para la tabla padre
     private List<PedidoProducto> pedidoProductos; // Relación con Pedidos_Productos
 
     @OneToOne(mappedBy = "pedido")

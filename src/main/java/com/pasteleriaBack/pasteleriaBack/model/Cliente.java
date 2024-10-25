@@ -1,5 +1,6 @@
 package com.pasteleriaBack.pasteleriaBack.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -15,6 +16,7 @@ public class Cliente {
     private String cli_email;
 
     @OneToMany(mappedBy = "cliente")
+    @JsonManagedReference
     private List<Pedido> pedidos; // Relación con Pedidos
 
     // Getters y Setters

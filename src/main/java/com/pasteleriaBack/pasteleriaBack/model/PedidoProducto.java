@@ -1,5 +1,6 @@
 package com.pasteleriaBack.pasteleriaBack.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -17,6 +18,7 @@ public class PedidoProducto {
     @ManyToOne
     @MapsId("pedId") // Tmb mapea el campo pedId de la clave compuesta
     @JoinColumn(name = "ped_id", nullable = false)
+    @JsonBackReference // Esta parte se ignora, es para la clase hija
     private Pedido pedido;
 
     @Column(nullable = false)
