@@ -45,5 +45,13 @@ public class EmpleadoController {
     }
 
     // Otros métodos
+    //metodo para REQUERIMIENTO 3: cambio de horario de jornada por parte del administrador al cocinero, ademas del registro en auditoria
+    @PutMapping("/{dni}/limiteJornada")
+    public ResponseEntity<String> editarLimiteJornada(
+            @PathVariable Integer dni,
+            @RequestParam Integer dniAdministrador,
+            @RequestParam Double nuevoLimite) {
+        return empleadoService.editarLimiteJornadaLaboral(dniAdministrador, dni, nuevoLimite);
+    }
 }
 

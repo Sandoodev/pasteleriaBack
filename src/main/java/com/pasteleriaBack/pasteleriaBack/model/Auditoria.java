@@ -2,7 +2,7 @@ package com.pasteleriaBack.pasteleriaBack.model;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "Auditorias")
@@ -13,7 +13,7 @@ public class Auditoria {
 
     private String aud_operacion;
     private String aud_detalle;
-    private LocalDate fecha;
+    private LocalDateTime fecha;
 
     @ManyToOne
     @JoinColumn(name = "autor_dni", nullable = false)
@@ -45,11 +45,11 @@ public class Auditoria {
         this.aud_detalle = aud_detalle;
     }
 
-    public LocalDate getFecha() {
+    public LocalDateTime getFecha() {
         return fecha;
     }
 
-    public void setFecha(LocalDate fecha) {
+    public void setFecha(LocalDateTime fecha) {
         this.fecha = fecha;
     }
 
