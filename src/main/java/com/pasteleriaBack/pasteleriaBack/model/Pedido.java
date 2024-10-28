@@ -1,6 +1,7 @@
 package com.pasteleriaBack.pasteleriaBack.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.sql.Timestamp;
@@ -26,7 +27,8 @@ public class Pedido {
 
     @ManyToOne
     @JoinColumn(name = "emp_dni", nullable = false)
-    @JsonManagedReference
+    @JsonIgnore
+    //@JsonManagedReference
     private Empleado empleado; // Relación con Empleado
 
     @ManyToOne

@@ -1,6 +1,9 @@
 package com.pasteleriaBack.pasteleriaBack.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -26,7 +29,9 @@ public class Empleado {
     private RolEmpleadoENUM emp_rol; // Usando la enumeración RolEmpleado
 
     @OneToMany(mappedBy = "empleado")
-    @JsonBackReference //hijo de pedido
+    //@JsonIgnore
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    //@JsonBackReference //hijo de pedido
     private List<Pedido> pedidos; // Relación con Pedidos
 
     // Getters y Setters

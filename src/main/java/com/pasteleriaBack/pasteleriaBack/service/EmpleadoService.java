@@ -129,4 +129,41 @@ public class EmpleadoService {
 
         return ResponseEntity.ok("Límite de jornada laboral actualizado correctamente.");
     }
+
+    //REQUERIMIENTO 7: registracion de un nuevo empleado por el admin
+    public ResponseEntity<Empleado> createCocinero(Empleado nuevoCocinero, Integer dniAdministrador) {
+        if (dniAdministrador == null) {
+            return ResponseEntity.badRequest().body(null); // Manejar el caso donde el DNI es nulo
+        }
+
+        // Verificar que el DNI del nuevo cocinero no sea nulo
+        if (nuevoCocinero.getEmp_dni() == null) {
+            return ResponseEntity.badRequest().body(null); // Manejar el caso donde el DNI del cocinero es nulo
+        }
+
+        // Verificar si el DNI ya existe
+        if (empleadoRepository.existsById(nuevoCocinero.getEmp_dni())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build(); // 409 Conflict
+        }
+
+        // Establecer el rol del empleado como "Cocinero"
+        nuevoCocinero.setEmp_rol(RolEmpleadoENUM.Cocinero);
+
+        // Guardar el nuevo cocinero
+        Empleado savedCocinero = empleadoRepository.save(nuevoCocinero);
+
+        // Obtener el administrador que está registrando al cocinero
+        Empleado administrador = empleadoRepository.findById(dniAdministrador)
+                .orElseThrow(() -> new RuntimeException("Administrador no encontrado"));
+
+        // Registrar la auditoría
+        Auditoria auditoria = new Auditoria();
+        auditoria.setAud_operacion("Registro de cocinero");
+        auditoria.setAud_detalle("El administrador " + administrador.getEmp_apellidoNombre() + " registró al cocinero: " + nuevoCocinero.getEmp_apellidoNombre());
+        auditoria.setFecha(LocalDateTime.now());
+        auditoria.setAutor(administrador); // Guardar el DNI del administrador
+        auditoriaRepository.save(auditoria);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedCocinero); // 201 Created
+    }
 }

@@ -31,7 +31,12 @@ public class EmpleadoController {
     public ResponseEntity<Empleado> createEmpleado(@RequestBody Empleado empleado) {
         return empleadoService.crearEmpleado(empleado);
     }
-
+    //REQUERIMIENTO 7: crear un cocinero
+    @CrossOrigin
+    @PostMapping("/createCocinero")
+    public ResponseEntity<Empleado> createCocinero(@RequestBody Empleado nuevoCocinero, @RequestParam Integer dniAdministrador) {
+        return empleadoService.createCocinero(nuevoCocinero, dniAdministrador);
+    }
     @CrossOrigin
     @PutMapping("/{dni}")
     public ResponseEntity<Empleado> updateEmpleado(@PathVariable Integer dni, @RequestBody Empleado updatedEmpleado) {
