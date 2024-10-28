@@ -2,6 +2,7 @@ package com.pasteleriaBack.pasteleriaBack.service;
 
 import com.pasteleriaBack.pasteleriaBack.model.Empleado;
 import com.pasteleriaBack.pasteleriaBack.model.Auditoria;
+import com.pasteleriaBack.pasteleriaBack.model.EstadoProductoENUM;
 import com.pasteleriaBack.pasteleriaBack.model.Producto;
 import com.pasteleriaBack.pasteleriaBack.repository.AuditoriaRepository;
 import com.pasteleriaBack.pasteleriaBack.repository.EmpleadoRepository;
@@ -114,6 +115,31 @@ public class ProductoService {
         return ResponseEntity.ok(savedProducto);
     }
 
+    //REQUERIMIENTO 6: baja logica del producto por el administrador
+    public ResponseEntity<Void> bajaLogicaProducto(Integer id, Integer dniAutor) {
+        Optional<Producto> optionalProducto = productoRepository.findById(id);
+        if (!optionalProducto.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Producto producto = optionalProducto.get();
+        // Cambiar el estado del producto a "Eliminado"
+        producto.setProd_estado(EstadoProductoENUM.inactivo);
+        productoRepository.save(producto); // Guardar el cambio en la base de datos
+
+        // Registrar la auditoría
+        Empleado autor = empleadoRepository.findById(dniAutor)
+                .orElseThrow(() -> new RuntimeException("Autor no encontrado"));
+        Auditoria auditoria = new Auditoria();
+        auditoria.setAud_operacion("Baja lógica de producto");
+        auditoria.setAud_detalle("Se eliminó lógicamente el producto: " + producto.getProd_descripcion());
+        auditoria.setFecha(LocalDateTime.now());
+        auditoria.setAutor(autor);
+        auditoriaRepository.save(auditoria);
+
+        return ResponseEntity.noContent().build(); // Devuelve un 204 No Content
+    }
+
     // Eliminar un producto
     public ResponseEntity<Void> deleteProducto(Integer id) {
         if (!productoRepository.existsById(id)) {
@@ -123,5 +149,4 @@ public class ProductoService {
         return ResponseEntity.noContent().build();
     }
 
-    // Otros métodos según los requerimientos
 }

@@ -32,12 +32,19 @@ public class ProductoController {
         return productoService.createProducto(producto, dniAutor);
     }
 
+    //REQUERIMIENTO 5: actualizacion de producto
     @CrossOrigin
     @PutMapping("/{id}")
     public ResponseEntity<Producto> updateProducto(@PathVariable Integer id, @RequestBody Producto updatedProducto, @RequestParam Integer dniAutor) {
         return productoService.updateProducto(id, updatedProducto, dniAutor);
     }
 
+    //REQUERIMIENTO 6: baja logica
+    @CrossOrigin
+    @PutMapping("/{id}/baja")
+    public ResponseEntity<Void> bajaLogicaProducto(@PathVariable Integer id, @RequestParam Integer dniAutor) {
+        return productoService.bajaLogicaProducto(id, dniAutor);
+    }
     @CrossOrigin
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProducto(@PathVariable Integer id) {
