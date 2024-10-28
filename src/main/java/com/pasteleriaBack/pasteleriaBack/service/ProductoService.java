@@ -69,13 +69,48 @@ public class ProductoService {
         return producto.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Actualizar un producto existente
-    public ResponseEntity<Producto> updateProducto(Integer id, Producto updatedProducto) {
+    // REQUERIMIENTO 5: Actualizar un producto existente por el administrador
+    public ResponseEntity<Producto> updateProducto(Integer id, Producto updatedProducto, Integer dniAutor) {
         if (!productoRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
-        updatedProducto.setProd_id(id); // Asegurarse de que el ID se mantenga
-        Producto savedProducto = productoRepository.save(updatedProducto);
+
+        // Obtener el producto existente
+        Producto existingProducto = productoRepository.findById(id).orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        // Actualizar solo los campos permitidos
+        if (updatedProducto.getProd_descripcion() != null) {
+            existingProducto.setProd_descripcion(updatedProducto.getProd_descripcion());
+        }
+        if (updatedProducto.getProd_imagen() != null) {
+            existingProducto.setProd_imagen(updatedProducto.getProd_imagen());
+        }
+        if (updatedProducto.getProd_precioCosto() != null) {
+            existingProducto.setProd_precioCosto(updatedProducto.getProd_precioCosto());
+        }
+        if (updatedProducto.getProd_precioVenta() != null) {
+            existingProducto.setProd_precioVenta(updatedProducto.getProd_precioVenta());
+        }
+        if (updatedProducto.getProd_tiempoDeProduccion() != null) {
+            existingProducto.setProd_tiempoDeProduccion(updatedProducto.getProd_tiempoDeProduccion());
+        }
+        if (updatedProducto.getProd_porcentajeDescuento() != null) {
+            existingProducto.setProd_porcentajeDescuento(updatedProducto.getProd_porcentajeDescuento());
+        }
+
+        // Guardar el producto actualizado
+        Producto savedProducto = productoRepository.save(existingProducto);
+
+        // Registrar la auditoría
+        Empleado autor = empleadoRepository.findById(dniAutor)
+                .orElseThrow(() -> new RuntimeException("Autor no encontrado"));
+        Auditoria auditoria = new Auditoria();
+        auditoria.setAud_operacion("Actualización de producto");
+        auditoria.setAud_detalle("Se actualizó el producto: " + savedProducto.getProd_descripcion());
+        auditoria.setFecha(LocalDateTime.now());
+        auditoria.setAutor(autor);
+        auditoriaRepository.save(auditoria);
+
         return ResponseEntity.ok(savedProducto);
     }
 

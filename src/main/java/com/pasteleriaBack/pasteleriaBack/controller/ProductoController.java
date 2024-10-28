@@ -34,8 +34,8 @@ public class ProductoController {
 
     @CrossOrigin
     @PutMapping("/{id}")
-    public ResponseEntity<Producto> updateProducto(@PathVariable Integer id, @RequestBody Producto updatedProducto) {
-        return productoService.updateProducto(id, updatedProducto);
+    public ResponseEntity<Producto> updateProducto(@PathVariable Integer id, @RequestBody Producto updatedProducto, @RequestParam Integer dniAutor) {
+        return productoService.updateProducto(id, updatedProducto, dniAutor);
     }
 
     @CrossOrigin
