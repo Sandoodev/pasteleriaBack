@@ -1,5 +1,6 @@
 package com.pasteleriaBack.pasteleriaBack.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.util.List;
@@ -23,8 +24,9 @@ public class Producto {
 
     private String prod_titulo;
 
-    @OneToMany(mappedBy = "producto")
-    @JsonManagedReference // Esta parte se serializa
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL)
+    @JsonIgnore
+    //@JsonManagedReference // Esta parte se serializa, pero no la uso porque me da problemas de error 415 a la hora de insertar un producto
     private List<PedidoProducto> pedidoProductos; // Relación con Pedidos_Productos
 
     // Getters y Setters

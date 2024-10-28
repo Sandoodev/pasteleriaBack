@@ -34,7 +34,7 @@ public class Pedido {
     @JsonBackReference
     private Cliente cliente; // Relación con Cliente
 
-    @OneToMany(mappedBy = "pedido")
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
     @JsonManagedReference // Esta parte se serializa y es para la tabla padre
     private List<PedidoProducto> pedidoProductos; // Relación con Pedidos_Productos
 

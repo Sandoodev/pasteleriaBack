@@ -27,9 +27,9 @@ public class ProductoController {
     }
 
     @CrossOrigin
-    @PostMapping
-    public ResponseEntity<Producto> createProducto(@RequestBody Producto producto) {
-        return productoService.createProducto(producto);
+    @PostMapping(consumes = "application/json")
+    public ResponseEntity<Producto> createProducto(@RequestBody Producto producto, @RequestParam Integer dniAutor) {
+        return productoService.createProducto(producto, dniAutor);
     }
 
     @CrossOrigin
@@ -43,4 +43,6 @@ public class ProductoController {
     public ResponseEntity<Void> deleteProducto(@PathVariable Integer id) {
         return productoService.deleteProducto(id);
     }
+
+
 }

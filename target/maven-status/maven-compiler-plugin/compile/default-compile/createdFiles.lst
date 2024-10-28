@@ -29,7 +29,6 @@ com\pasteleriaBack\pasteleriaBack\controller\HorarioAperturaCierreController.cla
 com\pasteleriaBack\pasteleriaBack\model\RolEmpleadoENUM.class
 com\pasteleriaBack\pasteleriaBack\controller\ClienteController.class
 com\pasteleriaBack\pasteleriaBack\exception\BusinessLogicException.class
-com\pasteleriaBack\pasteleriaBack\service\AsignacionService.class
 com\pasteleriaBack\pasteleriaBack\service\HorarioAperturaCierreService.class
 com\pasteleriaBack\pasteleriaBack\repository\EmpleadoRepository.class
 com\pasteleriaBack\pasteleriaBack\controller\MotivoEliminacionPedidoController.class
