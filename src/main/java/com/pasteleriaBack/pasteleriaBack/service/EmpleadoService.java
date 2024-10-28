@@ -166,4 +166,43 @@ public class EmpleadoService {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(savedCocinero); // 201 Created
     }
+
+    // REQUERIMIENTO 8: actualizar un cocinero existente
+    public ResponseEntity<String> updateCocinero(Integer dni, Empleado updatedEmpleado, Integer dniAdministrador) {
+        // Verificar si el cocinero existe
+        if (!empleadoRepository.existsById(dni)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Obtener el cocinero existente
+        Empleado existingEmpleado = empleadoRepository.findById(dni).orElseThrow(() -> new RuntimeException("Cocinero no encontrado"));
+
+        // Actualizar los campos necesarios
+        existingEmpleado.setEmp_apellidoNombre(updatedEmpleado.getEmp_apellidoNombre());
+        existingEmpleado.setEmp_email(updatedEmpleado.getEmp_email());
+        existingEmpleado.setEmp_nroCelular(updatedEmpleado.getEmp_nroCelular());
+        existingEmpleado.setEmp_sueldo(updatedEmpleado.getEmp_sueldo());
+        existingEmpleado.setEmp_porcentajeComisionPedido(updatedEmpleado.getEmp_porcentajeComisionPedido());
+
+        // Si se proporciona una nueva contraseña, actualizarla
+        if (updatedEmpleado.getEmp_contraseña() != null) {
+            existingEmpleado.setEmp_contraseña(updatedEmpleado.getEmp_contraseña());
+        }
+
+        // Guardar los cambios
+        empleadoRepository.save(existingEmpleado);
+
+        // Registrar la auditoría
+        Empleado administrador = empleadoRepository.findById(dniAdministrador)
+                .orElseThrow(() -> new RuntimeException("Administrador no encontrado"));
+
+        Auditoria auditoria = new Auditoria();
+        auditoria.setAud_operacion("Actualización de cocinero");
+        auditoria.setAud_detalle("El administrador " + administrador.getEmp_apellidoNombre() + " actualizó la información del cocinero: " + existingEmpleado.getEmp_apellidoNombre());
+        auditoria.setFecha(LocalDateTime.now());
+        auditoria.setAutor(administrador); // Guardar el DNI del administrador
+        auditoriaRepository.save(auditoria);
+
+        return ResponseEntity.ok("Cocinero actualizado correctamente.");
+    }
 }
