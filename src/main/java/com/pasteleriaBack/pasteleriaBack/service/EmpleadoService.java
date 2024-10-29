@@ -86,21 +86,20 @@ public class EmpleadoService {
             return ResponseEntity.badRequest().body("El límite de jornada laboral no puede ser menor a 1 hora.");
         }
 
-        // Obtener todos los horarios de apertura y cierre
+        // Obtener el horario de apertura y cierre
         List<HorarioAperturaCierre> horarios = horarioRepository.findAll();
-        if (horarios.size() < 2) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Se requieren al menos dos horarios para determinar la mañana y la tarde.");
+        if (horarios.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("No hay horarios de apertura y cierre definidos.");
         }
 
-        // Suponiendo que tienes exactamente dos horarios
-        HorarioAperturaCierre horarioManana = horarios.get(0);
-        HorarioAperturaCierre horarioTarde = horarios.get(1);
+        // Suponiendo que solo hay un horario que contiene tanto la mañana como la tarde
+        HorarioAperturaCierre horario = horarios.get(0);
 
         // Obtener las horas de apertura y cierre
-        LocalTime horaAperturaManana = horarioManana.getHac_horarioApertura().toLocalTime();
-        LocalTime horaCierreManana = horarioManana.getHac_horarioCierre().toLocalTime();
-        LocalTime horaAperturaTarde = horarioTarde.getHac_horarioApertura().toLocalTime();
-        LocalTime horaCierreTarde = horarioTarde.getHac_horarioCierre().toLocalTime();
+        LocalTime horaAperturaManana = horario.getHac_manana_apertura().toLocalTime();
+        LocalTime horaCierreManana = horario.getHac_manana_cierre().toLocalTime();
+        LocalTime horaAperturaTarde = horario.getHac_tarde_apertura().toLocalTime();
+        LocalTime horaCierreTarde = horario.getHac_tarde_cierre().toLocalTime();
 
         // Calcular el tiempo de apertura y cierre para la mañana
         long horasManana = Duration.between(horaAperturaManana, horaCierreManana).toHours();
