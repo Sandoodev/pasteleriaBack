@@ -13,11 +13,12 @@ public class MotivoEliminacionPedido {
     @JoinColumn(name = "ped_id", nullable = false)
     private Pedido pedido; // Relación con Pedidos
 
-    private String ped_motivoEliminacion;
+    @Enumerated(EnumType.STRING) // Esto indica que se almacenará como un String en la base de datos
+    private MotivoEliminacionENUM ped_motivoEliminacion;
+
     private String descripcion;
 
     // Getters y Setters
-
     public Integer getMot_id() {
         return mot_id;
     }
@@ -34,11 +35,11 @@ public class MotivoEliminacionPedido {
         this.pedido = pedido;
     }
 
-    public String getPed_motivoEliminacion() {
+    public MotivoEliminacionENUM getPed_motivoEliminacion() {
         return ped_motivoEliminacion;
     }
 
-    public void setPed_motivoEliminacion(String ped_motivoEliminacion) {
+    public void setPed_motivoEliminacion(MotivoEliminacionENUM ped_motivoEliminacion) {
         this.ped_motivoEliminacion = ped_motivoEliminacion;
     }
 

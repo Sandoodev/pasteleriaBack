@@ -11,11 +11,12 @@ public class HorarioAperturaCierre {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer hac_id;
 
-    private Time hac_horarioApertura;
-    private Time hac_horarioCierre;
+    private Time hac_manana_apertura;
+    private Time hac_manana_cierre;
+    private Time hac_tarde_apertura;
+    private Time hac_tarde_cierre;
 
     // Getters y Setters
-
     public Integer getHac_id() {
         return hac_id;
     }
@@ -24,19 +25,35 @@ public class HorarioAperturaCierre {
         this.hac_id = hac_id;
     }
 
-    public Time getHac_horarioApertura() {
-        return hac_horarioApertura;
+    public Time getHac_manana_apertura() {
+        return hac_manana_apertura;
     }
 
-    public void setHac_horarioApertura(Time hac_horarioApertura) {
-        this.hac_horarioApertura = hac_horarioApertura;
+    public void setHac_manana_apertura(Time hac_manana_apertura) {
+        this.hac_manana_apertura = hac_manana_apertura;
     }
 
-    public Time getHac_horarioCierre() {
-        return hac_horarioCierre;
+    public Time getHac_manana_cierre() {
+        return hac_manana_cierre;
     }
 
-    public void setHac_horarioCierre(Time hac_horarioCierre) {
-        this.hac_horarioCierre = hac_horarioCierre;
+    public void setHac_manana_cierre(Time hac_manana_cierre) {
+        this.hac_manana_cierre = hac_manana_cierre;
+    }
+
+    public Time getHac_tarde_apertura() {
+        return hac_tarde_apertura;
+    }
+
+    public void setHac_tarde_apertura(Time hac_tarde_apertura) {
+        this.hac_tarde_apertura = hac_tarde_apertura;
+    }
+
+    public Time getHac_tarde_cierre() {
+        return hac_tarde_cierre;
+    }
+
+    public void setHac_tarde_cierre(Time hac_tarde_cierre) {
+        this.hac_tarde_cierre = hac_tarde_cierre;
     }
 }
