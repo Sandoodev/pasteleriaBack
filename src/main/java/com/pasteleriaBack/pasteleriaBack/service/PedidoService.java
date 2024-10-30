@@ -1,12 +1,18 @@
 package com.pasteleriaBack.pasteleriaBack.service;
 
-import com.pasteleriaBack.pasteleriaBack.model.Pedido;
+import com.pasteleriaBack.pasteleriaBack.dto.PedidoDTO;
+import com.pasteleriaBack.pasteleriaBack.dto.ProductoCantidadDTO;
+import com.pasteleriaBack.pasteleriaBack.model.*;
+import com.pasteleriaBack.pasteleriaBack.repository.ClienteRepository;
+import com.pasteleriaBack.pasteleriaBack.repository.PedidoProductoRepository;
 import com.pasteleriaBack.pasteleriaBack.repository.PedidoRepository;
+import com.pasteleriaBack.pasteleriaBack.repository.ProductoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,7 +20,12 @@ import java.util.Optional;
 public class PedidoService {
     @Autowired
     private PedidoRepository pedidoRepository;
-
+    @Autowired
+    private ClienteRepository clienteRepository;
+    @Autowired
+    private ProductoRepository productoRepository;
+    @Autowired
+    private PedidoProductoRepository pedidoProductoRepository;
     public Pedido savePedido(Pedido pedido) {
         // Lógica para calcular total, asignar cocinero, etc.
         return pedidoRepository.save(pedido);
@@ -32,10 +43,58 @@ public class PedidoService {
     }
 
     // Método para crear un nuevo pedido
-    public ResponseEntity<Pedido> createPedido(Pedido pedido) {
-        Pedido savedPedido = pedidoRepository.save(pedido);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedPedido);
+    public ResponseEntity<Pedido> createPedido(PedidoDTO pedidoDTO) {
+        // Obtener el cliente
+        Cliente cliente = clienteRepository.findById(pedidoDTO.getDni())
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+
+        // Crear un nuevo pedido
+        Pedido nuevoPedido = new Pedido();
+        nuevoPedido.setCliente(cliente);
+        nuevoPedido.setPed_fechaDeCreacion(new Timestamp(System.currentTimeMillis()));
+        nuevoPedido.setPed_estado(EstadoPedidoENUM.pendienteDeEnvio); // O el estado que corresponda
+
+        // Manejo de envío a domicilio
+        if (EstadoEntregaENUM.envio.equals(pedidoDTO.getPed_entregaDto())) {
+            PedidoDomicilio direccion = new PedidoDomicilio();
+            direccion.setPed_barrio(pedidoDTO.getPed_barrioDto());
+            direccion.setPed_calle(pedidoDTO.getPed_calleDto());
+            direccion.setPed_numeroCasa(pedidoDTO.getPed_numeroCasaDto());
+            direccion.setPed_ciudad(pedidoDTO.getPed_ciudadDto());
+            // Establecer la relación entre Pedido y PedidoDomicilio
+            direccion.setPedido(nuevoPedido); //metodo de PedidoDomicilio
+            nuevoPedido.setPedidoDomicilio(direccion); // Establecer la relación en Pedido
+        }
+
+        // Guardar el pedido para obtener el ID generado
+        Pedido pedidoGuardado = pedidoRepository.save(nuevoPedido);
+
+        // Agregar productos al pedido
+        for (ProductoCantidadDTO productoCantidad : pedidoDTO.getProductos()) {
+            Producto producto = productoRepository.findById(productoCantidad.getProdId())
+                    .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+            PedidoProducto pedidoProducto = new PedidoProducto();
+            pedidoProducto.setPedido(pedidoGuardado);
+            pedidoProducto.setProducto(producto);
+            pedidoProducto.setCantidad(productoCantidad.getCantidad());
+
+            // Guardar el pedidoProducto en el repositorio
+            pedidoProductoRepository.save(pedidoProducto);
+        }
+
+        // Lógica adicional: Asignar un cocinero
+        asignarCocinero(pedidoGuardado);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(pedidoGuardado); // Retornar el pedido creado con estado 201
     }
+
+        private void asignarCocinero (Pedido pedido){
+            // Lógica para asignar un cocinero al pedido
+            Cocinero cocinero = obtenerCocineroDisponible(); // Implementa esta lógica según tus necesidades
+            pedido.setCocinero(cocinero);
+            pedidoRepository.save(pedido); // Guardar el pedido actualizado
+        }
 
     // Método para actualizar un pedido existente
     public ResponseEntity<Pedido> updatePedido(Integer id, Pedido updatedPedido) {//recibir como parametro los valores a setear, y persistir el objeto
