@@ -40,7 +40,8 @@ public class Pedido {
     @JsonManagedReference // Esta parte se serializa y es para la tabla padre
     private List<PedidoProducto> pedidoProductos; // Relación con Pedidos_Productos
 
-    @OneToOne(mappedBy = "pedido")
+    @OneToOne(mappedBy = "pedido", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private PedidoDomicilio pedidoDomicilio; // Relación con PedidoDomicilio
 
     @Column(name = "porcentajeComisionPedidoActual", nullable = false)

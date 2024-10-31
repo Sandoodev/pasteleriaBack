@@ -1,8 +1,10 @@
 package com.pasteleriaBack.pasteleriaBack.controller;
 
+import com.pasteleriaBack.pasteleriaBack.dto.PedidoDTO;
 import com.pasteleriaBack.pasteleriaBack.model.Pedido;
 import com.pasteleriaBack.pasteleriaBack.service.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind .annotation .PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,8 +33,8 @@ public class PedidoController {
 
     @CrossOrigin
     @PostMapping
-    public ResponseEntity<Pedido> createPedido(@RequestBody Pedido pedido) {
-        return pedidoService.createPedido(pedido);
+    public ResponseEntity<Pedido> createPedido(@RequestBody PedidoDTO pedidoDTO) {
+        return pedidoService.createPedido(pedidoDTO);
     }
 
     @CrossOrigin

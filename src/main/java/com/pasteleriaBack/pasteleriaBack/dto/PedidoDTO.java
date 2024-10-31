@@ -17,6 +17,7 @@ public class PedidoDTO {
     private String ped_ciudadDto; // Solo si se selecciona "envio-domicilio"
     private String ped_referenciaDto; // Opcional
     private String ped_descripcionDto; // Opcional
+    private Double porcentajeComisionPedidoActualDto;
     private List<ProductoCantidadDTO> productos; // Lista de productos y cantidades
 
     // Getters y Setters
@@ -115,6 +116,14 @@ public class PedidoDTO {
 
     public void setPed_descripcionDto(String ped_descripcionDto) {
         this.ped_descripcionDto = ped_descripcionDto;
+    }
+
+    public Double getPorcentajeComisionPedidoActualDto() {
+        return porcentajeComisionPedidoActualDto;
+    }
+
+    public void setPorcentajeComisionPedidoActualDto(Double porcentajeComisionPedidoActual) {
+        this.porcentajeComisionPedidoActualDto = porcentajeComisionPedidoActual;
     }
 
     public List<ProductoCantidadDTO> getProductos() {

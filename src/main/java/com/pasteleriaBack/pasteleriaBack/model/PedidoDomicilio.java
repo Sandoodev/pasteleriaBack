@@ -1,5 +1,6 @@
 package com.pasteleriaBack.pasteleriaBack.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -7,10 +8,13 @@ import jakarta.persistence.*;
 public class PedidoDomicilio {
 
     @Id
-    @OneToOne
-    @JoinColumn(name = "ped_id") // Clave foránea que referencia a la tabla Pedidos
-    private Pedido pedido; // Relación uno a uno con Pedido
+    private Integer ped_id; // Clave primaria que es la misma que en Pedido
 
+    @OneToOne
+    @MapsId // Indica que este campo es la clave primaria
+    @JoinColumn(name = "ped_id") // Clave foránea que referencia a la tabla Pedidos
+    @JsonBackReference
+    private Pedido pedido; // Relación uno a uno con Pedido
     private String ped_ciudad;
     private String ped_barrio;
     private String ped_calle;
@@ -19,6 +23,14 @@ public class PedidoDomicilio {
     private String ped_referencia;
 
     // Getters y Setters
+
+    public Integer getPed_id() {
+        return ped_id;
+    }
+
+    public void setPed_id(Integer ped_id) {
+        this.ped_id = ped_id;
+    }
 
     public Pedido getPedido() {
         return pedido;
