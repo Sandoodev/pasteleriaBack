@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -20,7 +21,9 @@ public class Pedido {
     private EstadoEntregaENUM ped_entrega; // tipo enum
 
     private Timestamp ped_fechaDeCreacion;
-    private Timestamp ped_fechaDeEntrega;
+
+    @Column(name = "ped_fechaDeEntrega")
+    private Timestamp pedFechaDeEntrega;
 
     @Enumerated(EnumType.STRING)
     private EstadoPedidoENUM ped_estado; // tipo enum
@@ -38,7 +41,7 @@ public class Pedido {
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
     @JsonManagedReference // Esta parte se serializa y es para la tabla padre
-    private List<PedidoProducto> pedidoProductos; // Relación con Pedidos_Productos
+    private List<PedidoProducto> pedidoProductos = new ArrayList<>(); // Relación con Pedidos_Productos, inicialmente no estaba inicializada, fue cambiada para implementar la logica de asignar pedido a cocineros.
 
     @OneToOne(mappedBy = "pedido", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
@@ -82,12 +85,12 @@ public class Pedido {
         this.ped_fechaDeCreacion = ped_fechaDeCreacion;
     }
 
-    public Timestamp getPed_fechaDeEntrega() {
-        return ped_fechaDeEntrega;
+    public Timestamp getPedFechaDeEntrega() {
+        return pedFechaDeEntrega;
     }
 
-    public void setPed_fechaDeEntrega(Timestamp ped_fechaDeEntrega) {
-        this.ped_fechaDeEntrega = ped_fechaDeEntrega;
+    public void setPedFechaDeEntrega(Timestamp pedFechaDeEntrega) {
+        this.pedFechaDeEntrega = pedFechaDeEntrega;
     }
 
     public EstadoPedidoENUM getPed_estado() {

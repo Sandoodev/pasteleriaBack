@@ -77,7 +77,7 @@ public class EmpleadoService {
                 .orElseThrow(() -> new RuntimeException("Administrador no encontrado"));
 
         // Verificar si el administrador tiene el rol adecuado
-        if (!RolEmpleadoENUM.Administrador.equals(administrador.getEmp_rol())) {
+        if (!RolEmpleadoENUM.Administrador.equals(administrador.getEmpRol())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No tienes permiso para realizar este cambio.");
         }
 
@@ -146,7 +146,7 @@ public class EmpleadoService {
         }
 
         // Establecer el rol del empleado como "Cocinero"
-        nuevoCocinero.setEmp_rol(RolEmpleadoENUM.Cocinero);
+        nuevoCocinero.setEmpRol(RolEmpleadoENUM.Cocinero);
 
         // Guardar el nuevo cocinero
         Empleado savedCocinero = empleadoRepository.save(nuevoCocinero);

@@ -1,9 +1,6 @@
 package com.pasteleriaBack.pasteleriaBack.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -26,7 +23,8 @@ public class Empleado {
     private Integer emp_jornadaLaboral;
 
     @Enumerated(EnumType.STRING)
-    private RolEmpleadoENUM emp_rol; // Usando la enumeración RolEmpleado
+    @Column(name = "emp_rol")
+    private RolEmpleadoENUM empRol; // Usando la enumeración RolEmpleado
 
     @OneToMany(mappedBy = "empleado")
     //@JsonIgnore
@@ -108,12 +106,12 @@ public class Empleado {
         this.emp_jornadaLaboral = emp_jornadaLaboral;
     }
 
-    public RolEmpleadoENUM getEmp_rol() {
-        return emp_rol;
+    public RolEmpleadoENUM getEmpRol() {
+        return empRol;
     }
 
-    public void setEmp_rol(RolEmpleadoENUM emp_rol) {
-        this.emp_rol = emp_rol;
+    public void setEmpRol(RolEmpleadoENUM empRol) {
+        this.empRol = empRol;
     }
 
     public List<Pedido> getPedidos() {
