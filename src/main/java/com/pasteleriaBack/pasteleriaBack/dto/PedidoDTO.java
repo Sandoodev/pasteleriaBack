@@ -7,7 +7,7 @@ import java.util.List;
 public class PedidoDTO {
     private Integer dni;
     private String cli_apellidoNombreDto;
-    private String email;
+    private String emailDto;
     private String cli_numCeluDto;
     private String cli_nroTelefonoFijoDto;
     private EstadoEntregaENUM ped_entregaDto; // "envio-domicilio" o "retiro-local"
@@ -38,12 +38,12 @@ public class PedidoDTO {
         this.cli_apellidoNombreDto = cli_apellidoNombreDto;
     }
 
-    public String getEmail() {
-        return email;
+    public String getEmailDto() {
+        return emailDto;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setEmailDto(String emailDto) {
+        this.emailDto = emailDto;
     }
 
     public String getCli_numCeluDto() {

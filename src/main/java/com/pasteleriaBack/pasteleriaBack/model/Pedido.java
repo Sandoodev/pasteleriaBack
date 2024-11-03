@@ -26,7 +26,8 @@ public class Pedido {
     private Timestamp pedFechaDeEntrega;
 
     @Enumerated(EnumType.STRING)
-    private EstadoPedidoENUM ped_estado; // tipo enum
+    @Column(name = "ped_estado")
+    private EstadoPedidoENUM pedEstado; // tipo enum
 
     @ManyToOne
     @JoinColumn(name = "emp_dni", nullable = false)
@@ -93,12 +94,12 @@ public class Pedido {
         this.pedFechaDeEntrega = pedFechaDeEntrega;
     }
 
-    public EstadoPedidoENUM getPed_estado() {
-        return ped_estado;
+    public EstadoPedidoENUM getPedEstado() {
+        return pedEstado;
     }
 
-    public void setPed_estado(EstadoPedidoENUM ped_estado) {
-        this.ped_estado = ped_estado;
+    public void setPedEstado(EstadoPedidoENUM pedEstado) {
+        this.pedEstado = pedEstado;
     }
 
     public Empleado getEmpleado() {
