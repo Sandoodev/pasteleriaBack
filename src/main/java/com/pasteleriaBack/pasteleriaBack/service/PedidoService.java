@@ -9,10 +9,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PedidoService {
@@ -28,6 +28,8 @@ public class PedidoService {
     private PedidoDomicilioRepository pedidoDomicilioRepository;
     @Autowired
     private EmpleadoRepository empleadoRepository;
+    @Autowired
+    private HorarioAperturaCierreRepository horarioAperturaCierreRepository;
 
     public Pedido savePedido(Pedido pedido) {
         // Lógica para calcular total, asignar cocinero, etc.
@@ -92,9 +94,11 @@ public class PedidoService {
         Empleado cocinero = asignarCocinero(nuevoPedido);
         nuevoPedido.setEmpleado(cocinero); // Se asigna en el campo empleado de Pedido
 
+        // Calcular el tiempo total de producción del nuevo pedido
+        int tiempoProduccionNuevoPedido = calcularTiempoProduccion(nuevoPedido);
         // Asignar fecha y horario de envío/retiro
-        Timestamp fechaEnvio = calcularFechaEnvio(nuevoPedido);
-        nuevoPedido.setPedFechaDeEntrega(fechaEnvio);
+        Date fechaEntrega = calcularFechaEntrega(tiempoProduccionNuevoPedido);
+        nuevoPedido.setPedFechaDeEntrega(new Timestamp(fechaEntrega.getTime()));
 
         // Manejo de envío a domicilio
         if (EstadoEntregaENUM.envio.equals(pedidoDTO.getPed_entregaDto())) {
@@ -145,36 +149,14 @@ public class PedidoService {
         return ResponseEntity.status(HttpStatus.CREATED).body(pedidoGuardado); // Retornar el pedido creado con estado 201
     }
 
-//    //metodo para asignar un cocinero
-//    private Empleado asignarCocinero(Pedido pedido) {
-//        List<Empleado> cocineros = empleadoRepository.findByEmpRol(RolEmpleadoENUM.Cocinero);
-//
-//        if (cocineros.isEmpty()) {
-//            throw new RuntimeException("No hay cocineros disponibles");
-//        }
-//
-//        Empleado cocineroAsignado = null;
-//        int tiempoMinimo = Integer.MAX_VALUE;
-//
-//        for (Empleado cocinero : cocineros) {
-//            int tiempoAsignado = calcularTiempoAsignado(cocinero, pedido.getPedFechaDeEntrega());
-//            if (tiempoAsignado < tiempoMinimo) {
-//                tiempoMinimo = tiempoAsignado;
-//                cocineroAsignado = cocinero;
-//            } else if (tiempoAsignado == tiempoMinimo) {
-//                // Si hay un empate, asignar aleatoriamente entre los cocineros con el mismo tiempo
-//                if (new Random().nextBoolean()) {
-//                    cocineroAsignado = cocinero;
-//                }
-//            }
-//        }
-//
-//        return cocineroAsignado;
-//    }
-
     private Empleado asignarCocinero(Pedido pedido) {
         List<Empleado> cocineros = empleadoRepository.findByEmpRol(RolEmpleadoENUM.Cocinero);
         System.out.println("Asignando cocinero para el pedido: " + pedido.getPed_id());
+
+        // Filtrar solo los cocineros que están activos
+        List<Empleado> cocinerosActivos = cocineros.stream()
+                .filter(cocinero -> cocinero.getEmp_estado() == EstadoEmpleadoENUM.activo)
+                .collect(Collectors.toList());
 
         if (cocineros.isEmpty()) {
             throw new RuntimeException("No hay cocineros disponibles");
@@ -183,10 +165,7 @@ public class PedidoService {
         Empleado cocineroAsignado = null;
         int tiempoMinimo = Integer.MAX_VALUE;
 
-        // Calcular el tiempo de producción del nuevo pedido
-        int tiempoProduccionNuevoPedido = calcularTiempoProduccion(pedido);
-
-        for (Empleado cocinero : cocineros) {
+        for (Empleado cocinero : cocinerosActivos) {
             // Calcular el tiempo total asignado al cocinero
             int tiempoAsignado = calcularTiempoAsignado(cocinero);
             System.out.println("Tiempo asignado para el cocinero " + cocinero.getEmp_dni() + ": " + tiempoAsignado);
@@ -195,7 +174,9 @@ public class PedidoService {
             // Solo buscamos el cocinero con menor carga de trabajo
             if (tiempoAsignado < tiempoMinimo) {
                 tiempoMinimo = tiempoAsignado;
+                System.out.println("El tiempo minimo es " + tiempoMinimo);
                 cocineroAsignado = cocinero;
+                System.out.println("El cocinero asignado es: " + cocineroAsignado.getEmp_apellidoNombre());
             }else if (tiempoAsignado == tiempoMinimo) {
                // Si hay un empate, asignar aleatoriamente entre los cocineros con el mismo tiempo
                 if (new Random().nextBoolean()) {
@@ -217,6 +198,15 @@ public class PedidoService {
         //List<Pedido> pedidos = pedidoRepository.findByEmpleadoAndPedFechaDeEntrega(cocinero, fechaEnvio);
         System.out.println("Calculando tiempo asignado para el cocinero: " + cocinero.getEmp_dni());
         List<Pedido> pedidosEnPreparacion = pedidoRepository.findByEmpleadoAndPedEstado(cocinero, EstadoPedidoENUM.enPreparacion);
+
+        // Obtener todos los pedidos asignados al cocinero
+        //List<Pedido> todosLosPedidos = pedidoRepository.findByEmpleado(cocinero);
+
+        // Filtrar solo los pedidos que están en estado "en preparación"
+        //List<Pedido> pedidosEnPreparacion = todosLosPedidos.stream()
+               // .filter(pedido -> pedido.getPedEstado() == EstadoPedidoENUM.enPreparacion)
+                //.collect(Collectors.toList());
+
         System.out.println("Calculando tiempo asignado para el cocinero2: " + cocinero.getEmp_dni());
         int tiempoTotal = 0;
         for (Pedido pedido : pedidosEnPreparacion) {
@@ -245,37 +235,109 @@ public class PedidoService {
         return tiempoTotal;
     }
 
-    // Este método calcula la fecha de envío considerando el tiempo de producción y la disponibilidad del cocinero.
-    private Timestamp calcularFechaEnvio(Pedido pedido) {
-        // Sabiendo que cada producto tiene un tiempo de producción asociado (en minutos)
-        int tiempoProduccion = calcularTiempoProduccion(pedido);
+    private Date calcularFechaEntrega(int tiempoProduccionNuevoPedido) {
+        // Obtener el horario de apertura y cierre
+        HorarioAperturaCierre horario = horarioAperturaCierreRepository.findFirstByOrderByHacIdAsc();
+        Time aperturaManana = horario.getHac_manana_apertura();
+        Time cierreManana = horario.getHac_manana_cierre();
+        Time aperturaTarde = horario.getHac_tarde_apertura();
+        Time cierreTarde = horario.getHac_tarde_cierre();
 
-        // Obtener la fecha actual y calcular la fecha de envío para el día siguiente
-        Timestamp fechaEnvio = new Timestamp(System.currentTimeMillis() + 86400000); // 1 día en milisegundos
+        // Calcular los minutos disponibles en un día
+        int minutosDisponiblesPorDia = calcularMinutosDisponiblesPorDia(aperturaManana, cierreManana, aperturaTarde, cierreTarde);
 
-        // Obtener el cocinero asignado
-        Empleado cocinero = pedido.getEmpleado();
-        System.out.println("Cocineros llegaaa: " + cocinero.getEmp_dni());
+        // Calcular la fecha de entrega comenzando desde el día siguiente
+        Calendar entregaCalendar = Calendar.getInstance();
+        entregaCalendar.add(Calendar.DAY_OF_YEAR, 1); // Sumar un día
 
-        // Verificar la disponibilidad del cocinero
-        while (!verificarDisponibilidad(cocinero, fechaEnvio, tiempoProduccion)) {
-            // Si el cocinero no está disponible, avanzar al siguiente día
-            fechaEnvio = new Timestamp(fechaEnvio.getTime() + 86400000); // Incrementar en 1 día
+        // Sumar el tiempo de producción al calendario
+        while (tiempoProduccionNuevoPedido > 0) {
+            // Si el tiempo de producción restante es mayor que los minutos disponibles en el día
+            if (tiempoProduccionNuevoPedido >= minutosDisponiblesPorDia) {
+                tiempoProduccionNuevoPedido -= minutosDisponiblesPorDia; // Restar los minutos del día
+                // Avanzar al siguiente día
+                entregaCalendar.add(Calendar.DAY_OF_YEAR, 1);
+            } else {
+                // Si el tiempo de producción restante es menor que los minutos disponibles en el día
+                // Ajustar la hora de entrega dentro del horario de apertura
+                entregaCalendar.set(Calendar.HOUR_OF_DAY, aperturaManana.getHours());
+                entregaCalendar.set(Calendar.MINUTE, aperturaManana.getMinutes());
+
+                // Sumar el tiempo de producción restante
+                while (tiempoProduccionNuevoPedido > 0) {
+                    // Verificar si estamos dentro del horario de apertura
+                    if (isDentroDelHorario(entregaCalendar, aperturaManana, cierreManana, aperturaTarde, cierreTarde)) {
+                        // Calcular los minutos disponibles en el horario actual
+                        int minutosDisponibles = calcularMinutosDisponiblesEnHorario(entregaCalendar, aperturaManana, cierreManana, aperturaTarde, cierreTarde);
+                        if (minutosDisponibles > 0) {
+                            int minutosASumar = Math.min(tiempoProduccionNuevoPedido, minutosDisponibles);
+                            entregaCalendar.add(Calendar.MINUTE, minutosASumar); // Sumar minutos
+                            tiempoProduccionNuevoPedido -= minutosASumar; // Reducir el tiempo restante
+                        }
+                    } else {
+                        // Si estamos fuera del horario, avanzar al siguiente horario de apertura
+                        avanzarAlSiguienteHorario(entregaCalendar, aperturaManana, cierreManana, aperturaTarde, cierreTarde);
+                    }
+                }
+            }
         }
 
-        return fechaEnvio;
+        return entregaCalendar.getTime();
     }
 
-    private boolean verificarDisponibilidad(Empleado cocinero, Timestamp fechaEnvio, int tiempoProduccion) {
-        if (cocinero == null) {
-            throw new RuntimeException("Cocinero no asignado");
+    //devuelve la cantidad de minutos total de la jornada diaria del negocio
+    private int calcularMinutosDisponiblesPorDia(Time aperturaManana, Time cierreManana, Time aperturaTarde, Time cierreTarde) {
+        // Calcular los minutos disponibles en un día
+        int minutosManana = (cierreManana.getHours() * 60 + cierreManana.getMinutes()) - (aperturaManana.getHours() * 60 + aperturaManana.getMinutes());
+        int minutosTarde = (cierreTarde.getHours() * 60 + cierreTarde.getMinutes()) - (aperturaTarde.getHours() * 60 + aperturaTarde.getMinutes());
+        return minutosManana + minutosTarde;
+    }
+
+    private int calcularMinutosDisponiblesEnHorario(Calendar entregaCalendar, Time aperturaManana, Time cierreManana, Time aperturaTarde, Time cierreTarde) {
+        // Calcular los minutos disponibles en el horario actual
+        Calendar finHorario = (Calendar) entregaCalendar.clone();
+
+        // Si estamos en la mañana
+        if (entregaCalendar.after(aperturaManana) && entregaCalendar.before(cierreManana)) {
+            finHorario.setTime(cierreManana);
+        } else if (entregaCalendar.after(cierreManana) && entregaCalendar.before(aperturaTarde)) {
+            // Si estamos entre el cierre de la mañana y la apertura de la tarde
+            finHorario.setTime(aperturaTarde);
+        }else {
+            // Si estamos fuera del horario, no hay minutos disponibles
+            return 0;
         }
-        // Implementar la lógica para verificar si el cocinero tiene capacidad para aceptar el nuevo pedido
-        // Esto puede incluir consultar los pedidos existentes del cocinero y sumar el tiempo de producción
-        int tiempoAsignado = calcularTiempoAsignado(cocinero); // Implementar este método
-        return (tiempoAsignado + tiempoProduccion) <= cocinero.getEmp_jornadaLaboral(); // Comparar con la jornada laboral
+
+        // Calcular los minutos disponibles desde el tiempo actual hasta el final del horario
+        long minutosDisponibles = (finHorario.getTimeInMillis() - entregaCalendar.getTimeInMillis()) / (1000 * 60);
+        return (int) minutosDisponibles;
     }
 
+    //controla si esta dentro de las horas de atencion del local
+    private boolean isDentroDelHorario(Calendar entregaCalendar, Time aperturaManana, Time cierreManana, Time aperturaTarde, Time cierreTarde) {
+        // Obtener la hora actual en el calendario
+        int hora = entregaCalendar.get(Calendar.HOUR_OF_DAY);
+        int minuto = entregaCalendar.get(Calendar.MINUTE);
+
+        // Comprobar si está dentro del horario de la mañana
+        if (hora >= aperturaManana.getHours() && hora < cierreManana.getHours()) {
+            return true;
+        }
+
+        // Comprobar si está dentro del horario de la tarde
+        if (hora >= aperturaTarde.getHours() && hora < cierreTarde.getHours()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private void avanzarAlSiguienteHorario(Calendar entregaCalendar, Time aperturaManana, Time cierreManana, Time aperturaTarde, Time cierreTarde) {
+        // Avanzar al siguiente día
+        entregaCalendar.add(Calendar.DAY_OF_YEAR, 1);
+        entregaCalendar.set(Calendar.HOUR_OF_DAY, aperturaManana.getHours());
+        entregaCalendar.set(Calendar.MINUTE, aperturaManana.getMinutes());
+    }
     private void generarComprobante(Pedido pedido) {
         // Crear un StringBuilder para construir el comprobante
         StringBuilder comprobante = new StringBuilder();

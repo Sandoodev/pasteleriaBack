@@ -9,7 +9,8 @@ import java.sql.Time;
 public class HorarioAperturaCierre {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer hac_id;
+    @Column(name = "hac_id")
+    private Integer hacId;
 
     private Time hac_manana_apertura;
     private Time hac_manana_cierre;
@@ -17,12 +18,12 @@ public class HorarioAperturaCierre {
     private Time hac_tarde_cierre;
 
     // Getters y Setters
-    public Integer getHac_id() {
-        return hac_id;
+    public Integer getHacId() {
+        return hacId;
     }
 
-    public void setHac_id(Integer hac_id) {
-        this.hac_id = hac_id;
+    public void setHacId(Integer hacId) {
+        this.hacId = hacId;
     }
 
     public Time getHac_manana_apertura() {
