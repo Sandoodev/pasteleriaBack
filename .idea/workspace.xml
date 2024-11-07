@@ -6,8 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="4c0d1863-d7c8-4f0d-8164-2ffe3b62f76c" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/model/HorarioAperturaCierre.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/model/HorarioAperturaCierre.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/repository/HorarioAperturaCierreRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/repository/HorarioAperturaCierreRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/repository/PedidoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/repository/PedidoRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/service/PedidoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/service/PedidoService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/repository/PedidoRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/repository/PedidoRepository.class" afterDir="false" />

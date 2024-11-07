@@ -5,6 +5,7 @@ import com.pasteleriaBack.pasteleriaBack.dto.ProductoCantidadDTO;
 import com.pasteleriaBack.pasteleriaBack.model.*;
 import com.pasteleriaBack.pasteleriaBack.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -91,14 +92,8 @@ public class PedidoService {
         nuevoPedido.setPorcentajeComisionPedidoActual(pedidoDTO.getPorcentajeComisionPedidoActualDto());
 
         // Asignar cocinero
-        Empleado cocinero = asignarCocinero(nuevoPedido);
+        Empleado cocinero = asignarCocinero();
         nuevoPedido.setEmpleado(cocinero); // Se asigna en el campo empleado de Pedido
-
-        // Calcular el tiempo total de producción del nuevo pedido
-        int tiempoProduccionNuevoPedido = calcularTiempoProduccion(nuevoPedido);
-        // Asignar fecha y horario de envío/retiro
-        Date fechaEntrega = calcularFechaEntrega(tiempoProduccionNuevoPedido);
-        nuevoPedido.setPedFechaDeEntrega(new Timestamp(fechaEntrega.getTime()));
 
         // Manejo de envío a domicilio
         if (EstadoEntregaENUM.envio.equals(pedidoDTO.getPed_entregaDto())) {
@@ -115,7 +110,7 @@ public class PedidoService {
             nuevoPedido.setPedidoDomicilio(direccionGuardada); // Establecer la relación en Pedido
         }
 
-        // Guardar el pedido para obtener el ID generado
+        // Guardar el pedido para obtener el ID generado  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++DEBE IR ABAJO DE TODO?????
         Pedido pedidoGuardado = pedidoRepository.save(nuevoPedido);
 
         // Agregar productos al pedido
@@ -143,15 +138,21 @@ public class PedidoService {
             pedidoProductoRepository.save(pedidoProducto);
         }
 
+        // Calcular el tiempo total de producción del nuevo pedido
+        int tiempoProduccionNuevoPedido = calcularTiempoProduccion(pedidoGuardado.getPed_id());
+        System.out.println("TIEMPO DE PRODUCCION DEL NUEVO PEDIDO ES: " + tiempoProduccionNuevoPedido);
+        // Asignar fecha y horario de envío/retiro
+        Date fechaEntrega = calcularFechaEntrega(tiempoProduccionNuevoPedido, cocinero);
+        nuevoPedido.setPedFechaDeEntrega(new Timestamp(fechaEntrega.getTime()));
+
         //Generar comprobante
         generarComprobante(pedidoGuardado);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(pedidoGuardado); // Retornar el pedido creado con estado 201
     }
 
-    private Empleado asignarCocinero(Pedido pedido) {
+    private Empleado asignarCocinero() {
         List<Empleado> cocineros = empleadoRepository.findByEmpRol(RolEmpleadoENUM.Cocinero);
-        System.out.println("Asignando cocinero para el pedido: " + pedido.getPed_id());
 
         // Filtrar solo los cocineros que están activos
         List<Empleado> cocinerosActivos = cocineros.stream()
@@ -219,7 +220,7 @@ public class PedidoService {
         return tiempoTotal; // Devuelve el tiempo total en minutos
     }
 
-    //obtiene el tiempo totalde produccion en minutos de todos los productos del pedido
+    //obtiene el tiempo total de produccion en minutos de todos los productos del pedido
     private int calcularTiempoProduccion(Pedido pedido) {
         // Inicializa el tiempo total en minutos
         int tiempoTotal = 0;
@@ -230,59 +231,83 @@ public class PedidoService {
             Producto producto = pedidoProducto.getProducto();
             // Suma el tiempo de producción del producto multiplicado por la cantidad
             tiempoTotal += producto.getProd_tiempoDeProduccion() * pedidoProducto.getCantidad();
+            System.out.println("producto: " + producto.getProd_tiempoDeProduccion() + " * cantidad: " + pedidoProducto.getCantidad());
         }
         // Devuelve el tiempo total en minutos
+        System.out.println("EL TIEMPO TOTAL ES: " + tiempoTotal);
         return tiempoTotal;
     }
 
-    private Date calcularFechaEntrega(int tiempoProduccionNuevoPedido) {
+    private Date calcularFechaEntrega(int tiempoProduccionNuevoPedido,Empleado empleado) {
         // Obtener el horario de apertura y cierre
+        Timestamp fechaUltimoPedido = obtenerFechaUltimoPedido(empleado);
+        System.out.println("fecha del ultimo pedido" + fechaUltimoPedido); //PRUEBA
+        System.out.println("TIEMPO PRODUCCION PEDIDO: " + tiempoProduccionNuevoPedido); //PRUEBA
+        if (fechaUltimoPedido == null) {
+            throw new IllegalArgumentException("No se encontró ningún pedido para el cocinero.");
+        }
+
         HorarioAperturaCierre horario = horarioAperturaCierreRepository.findFirstByOrderByHacIdAsc();
         Time aperturaManana = horario.getHac_manana_apertura();
         Time cierreManana = horario.getHac_manana_cierre();
         Time aperturaTarde = horario.getHac_tarde_apertura();
         Time cierreTarde = horario.getHac_tarde_cierre();
 
+        // Crear un calendario a partir de la fecha del último pedido
+        Calendar entregaCalendar = Calendar.getInstance();
+        entregaCalendar.setTimeInMillis(fechaUltimoPedido.getTime());
         // Calcular los minutos disponibles en un día
         int minutosDisponiblesPorDia = calcularMinutosDisponiblesPorDia(aperturaManana, cierreManana, aperturaTarde, cierreTarde);
 
-        // Calcular la fecha de entrega comenzando desde el día siguiente
-        Calendar entregaCalendar = Calendar.getInstance();
-        entregaCalendar.add(Calendar.DAY_OF_YEAR, 1); // Sumar un día
-
         // Sumar el tiempo de producción al calendario
         while (tiempoProduccionNuevoPedido > 0) {
-            // Si el tiempo de producción restante es mayor que los minutos disponibles en el día
-            if (tiempoProduccionNuevoPedido >= minutosDisponiblesPorDia) {
-                tiempoProduccionNuevoPedido -= minutosDisponiblesPorDia; // Restar los minutos del día
-                // Avanzar al siguiente día
-                entregaCalendar.add(Calendar.DAY_OF_YEAR, 1);
-            } else {
-                // Si el tiempo de producción restante es menor que los minutos disponibles en el día
-                // Ajustar la hora de entrega dentro del horario de apertura
-                entregaCalendar.set(Calendar.HOUR_OF_DAY, aperturaManana.getHours());
-                entregaCalendar.set(Calendar.MINUTE, aperturaManana.getMinutes());
+            // Verificar si estamos dentro del horario de apertura
+            if (isDentroDelHorario(entregaCalendar, aperturaManana, cierreManana, aperturaTarde, cierreTarde)) {
+                // Calcular los minutos restantes hasta el cierre del turno correspondiente
+                int minutosRestantes = calcularMinutosRestantes(entregaCalendar, aperturaManana, cierreManana, aperturaTarde, cierreTarde);
+                System.out.println("MINUTOS RESTANTES: " + minutosRestantes); //PRUEBA
 
-                // Sumar el tiempo de producción restante
-                while (tiempoProduccionNuevoPedido > 0) {
-                    // Verificar si estamos dentro del horario de apertura
-                    if (isDentroDelHorario(entregaCalendar, aperturaManana, cierreManana, aperturaTarde, cierreTarde)) {
-                        // Calcular los minutos disponibles en el horario actual
-                        int minutosDisponibles = calcularMinutosDisponiblesEnHorario(entregaCalendar, aperturaManana, cierreManana, aperturaTarde, cierreTarde);
-                        if (minutosDisponibles > 0) {
-                            int minutosASumar = Math.min(tiempoProduccionNuevoPedido, minutosDisponibles);
-                            entregaCalendar.add(Calendar.MINUTE, minutosASumar); // Sumar minutos
-                            tiempoProduccionNuevoPedido -= minutosASumar; // Reducir el tiempo restante
-                        }
+                if (minutosRestantes > 0) {
+                    // Si el tiempo de producción restante es menor o igual a los minutos restantes
+                    if (tiempoProduccionNuevoPedido <= minutosRestantes) {
+                        entregaCalendar.add(Calendar.MINUTE, tiempoProduccionNuevoPedido);
+                        tiempoProduccionNuevoPedido = 0; // Pedido completado
                     } else {
-                        // Si estamos fuera del horario, avanzar al siguiente horario de apertura
-                        avanzarAlSiguienteHorario(entregaCalendar, aperturaManana, cierreManana, aperturaTarde, cierreTarde);
+                        // Si el tiempo de producción restante es mayor que los minutos restantes
+                        entregaCalendar.add(Calendar.MINUTE, minutosRestantes);
+                        tiempoProduccionNuevoPedido -= minutosRestantes; // Restar los minutos utilizados
+                        // Avanzar al siguiente día
+                        entregaCalendar.add(Calendar.DAY_OF_YEAR, 1);
+                        entregaCalendar.set(Calendar.HOUR_OF_DAY, aperturaManana.getHours());
+                        entregaCalendar.set(Calendar.MINUTE, aperturaManana.getMinutes());
                     }
                 }
+            } else {
+                // Si estamos fuera del horario, avanzar al siguiente horario de apertura
+                avanzarAlSiguienteHorario(entregaCalendar, aperturaManana, cierreManana, aperturaTarde, cierreTarde);
             }
         }
 
         return entregaCalendar.getTime();
+    }
+
+    private int calcularMinutosRestantes(Calendar entregaCalendar, Time aperturaManana, Time cierreManana, Time aperturaTarde, Time cierreTarde) {
+        Calendar finHorario = (Calendar) entregaCalendar.clone();
+
+        // Si estamos en la mañana
+        if (entregaCalendar.after(aperturaManana) && entregaCalendar.before(cierreManana)) {
+            finHorario.setTime(cierreManana);
+        } else if (entregaCalendar.after(cierreManana) && entregaCalendar.before(aperturaTarde)) {
+            // Si estamos entre el cierre de la mañana y la apertura de la tarde
+            finHorario.setTime(cierreTarde);
+        } else {
+            // Si estamos fuera del horario, no hay minutos restantes
+            return 0;
+        }
+
+        // Calcular los minutos restantes desde el tiempo actual hasta el final del horario
+        long minutosRestantes = (finHorario.getTimeInMillis() - entregaCalendar.getTimeInMillis()) / (1000 * 60);
+        return (int) minutosRestantes;
     }
 
     //devuelve la cantidad de minutos total de la jornada diaria del negocio
@@ -338,6 +363,12 @@ public class PedidoService {
         entregaCalendar.set(Calendar.HOUR_OF_DAY, aperturaManana.getHours());
         entregaCalendar.set(Calendar.MINUTE, aperturaManana.getMinutes());
     }
+
+    public Timestamp obtenerFechaUltimoPedido(Empleado empleado) {
+        Optional<Pedido> pedidoOpt = pedidoRepository.findTopByEmpleadoOrderByPedFechaDeEntregaDesc(empleado);
+        return pedidoOpt.map(Pedido::getPedFechaDeEntrega).orElse(null);
+    }
+
     private void generarComprobante(Pedido pedido) {
         // Crear un StringBuilder para construir el comprobante
         StringBuilder comprobante = new StringBuilder();
