@@ -4,11 +4,12 @@ import com.pasteleriaBack.pasteleriaBack.dto.PedidoDTO;
 import com.pasteleriaBack.pasteleriaBack.dto.ProductoCantidadDTO;
 import com.pasteleriaBack.pasteleriaBack.model.*;
 import com.pasteleriaBack.pasteleriaBack.repository.*;
+import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -17,6 +18,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class PedidoService {
+    @Autowired
+    private EntityManager entityManager;
+
     @Autowired
     private PedidoRepository pedidoRepository;
     @Autowired
@@ -85,7 +89,9 @@ public class PedidoService {
         // Crear un nuevo pedido
         Pedido nuevoPedido = new Pedido();
         nuevoPedido.setCliente(cliente);
-        nuevoPedido.setPed_fechaDeCreacion(new Timestamp(System.currentTimeMillis()));
+        //se almacena la fecha en una variable para usarla tambien en el calculo de fecha de entrega del pedido
+        Timestamp fechaDelUltimoPedido = new Timestamp(System.currentTimeMillis());
+        nuevoPedido.setPedFechaDeCreacion(fechaDelUltimoPedido);
         nuevoPedido.setPedEstado(EstadoPedidoENUM.enPreparacion);
         nuevoPedido.setPed_entrega(pedidoDTO.getPed_entregaDto());
         nuevoPedido.setPed_descripcion(pedidoDTO.getPed_descripcionDto());
@@ -112,7 +118,6 @@ public class PedidoService {
 
         // Guardar el pedido para obtener el ID generado  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++DEBE IR ABAJO DE TODO?????
         Pedido pedidoGuardado = pedidoRepository.save(nuevoPedido);
-
         // Agregar productos al pedido
         for (ProductoCantidadDTO productoCantidad : pedidoDTO.getProductos()) {
             Producto producto = productoRepository.findById(productoCantidad.getProdId())
@@ -138,11 +143,34 @@ public class PedidoService {
             pedidoProductoRepository.save(pedidoProducto);
         }
 
+//---------------------------------------------------------------------------------------------------
+        int tiempoTotal = 0;
+
+        for (ProductoCantidadDTO productoCantidad : pedidoDTO.getProductos()) {
+            // Obtener el producto por su ID
+            Producto producto = productoRepository.findById(productoCantidad.getProdId())
+                    .orElseThrow(() -> new RuntimeException("Producto no encontrado con ID: " + productoCantidad.getProdId()));
+
+            // Sumar el tiempo de producción del producto multiplicado por la cantidad
+            tiempoTotal += producto.getProd_tiempoDeProduccion() * productoCantidad.getCantidad();
+        }
+
+        //---------------------------------------------------------------------------------------------------
+
+        System.out.println("El tiempo total es:::::::::::::::::::: " + tiempoTotal);
+
+        // Obtener el último pedido en preparación
+        Pedido ultimoPedidoEnPreparacion = pedidoRepository.findTopByPedEstadoOrderByPedFechaDeCreacionDesc(EstadoPedidoENUM.enPreparacion);
+        System.out.println("EL ULTIMO PEDIDO ENCONTRADO ES: " + (ultimoPedidoEnPreparacion.getPed_id()-10));
+        System.out.println("EN LA FECHA: " + ultimoPedidoEnPreparacion.getPedFechaDeCreacion());
+        System.out.println("OTRA COSA: " + ultimoPedidoEnPreparacion.getEmpleado().getEmp_apellidoNombre() + "dni: " + ultimoPedidoEnPreparacion.getEmpleado().getEmp_dni());
+        System.out.println("otroooo: "+ ultimoPedidoEnPreparacion.getPedidoProductos());
+        System.out.println("otroooo: "+ ultimoPedidoEnPreparacion.getPedidoDomicilio());
+
         // Calcular el tiempo total de producción del nuevo pedido
-        int tiempoProduccionNuevoPedido = calcularTiempoProduccion(pedidoGuardado.getPed_id());
-        System.out.println("TIEMPO DE PRODUCCION DEL NUEVO PEDIDO ES: " + tiempoProduccionNuevoPedido);
+
         // Asignar fecha y horario de envío/retiro
-        Date fechaEntrega = calcularFechaEntrega(tiempoProduccionNuevoPedido, cocinero);
+        Date fechaEntrega = calcularFechaEntrega(tiempoTotal, cocinero,fechaDelUltimoPedido);
         nuevoPedido.setPedFechaDeEntrega(new Timestamp(fechaEntrega.getTime()));
 
         //Generar comprobante
@@ -200,20 +228,11 @@ public class PedidoService {
         System.out.println("Calculando tiempo asignado para el cocinero: " + cocinero.getEmp_dni());
         List<Pedido> pedidosEnPreparacion = pedidoRepository.findByEmpleadoAndPedEstado(cocinero, EstadoPedidoENUM.enPreparacion);
 
-        // Obtener todos los pedidos asignados al cocinero
-        //List<Pedido> todosLosPedidos = pedidoRepository.findByEmpleado(cocinero);
-
-        // Filtrar solo los pedidos que están en estado "en preparación"
-        //List<Pedido> pedidosEnPreparacion = todosLosPedidos.stream()
-               // .filter(pedido -> pedido.getPedEstado() == EstadoPedidoENUM.enPreparacion)
-                //.collect(Collectors.toList());
-
-        System.out.println("Calculando tiempo asignado para el cocinero2: " + cocinero.getEmp_dni());
         int tiempoTotal = 0;
         for (Pedido pedido : pedidosEnPreparacion) {
             System.out.println("Hasta aqui tambien llega" + pedido.getPed_id());
             // Calcular el tiempo de producción de cada pedido
-            int tiempoProduccion = calcularTiempoProduccion(pedido); // Reutilizar el método que ya tienes
+            int tiempoProduccion = calcularTiempoProduccion(pedido.getPed_id());
             tiempoTotal += tiempoProduccion;
         }
 
@@ -221,7 +240,11 @@ public class PedidoService {
     }
 
     //obtiene el tiempo total de produccion en minutos de todos los productos del pedido
-    private int calcularTiempoProduccion(Pedido pedido) {
+    private int calcularTiempoProduccion(int pedidoId) {
+        // Busca el pedido en la base de datos usando el ID
+        Pedido pedido = pedidoRepository.findById(pedidoId)
+                .orElseThrow(() -> new RuntimeException("Pedido no encontrado con ID: " + pedidoId));
+
         // Inicializa el tiempo total en minutos
         int tiempoTotal = 0;
 
@@ -238,11 +261,20 @@ public class PedidoService {
         return tiempoTotal;
     }
 
-    private Date calcularFechaEntrega(int tiempoProduccionNuevoPedido,Empleado empleado) {
+    private Date calcularFechaEntrega(int tiempoProduccionNuevoPedido,Empleado empleado,Timestamp fechaUltimoPedido) {
         // Obtener el horario de apertura y cierre
-        Timestamp fechaUltimoPedido = obtenerFechaUltimoPedido(empleado);
+         //fechaUltimoPedido = obtenerFechaUltimoPedido(empleado);
+        System.out.println("\n\n\nEl dni empleado es:" + empleado.getEmp_dni() + "con nombre en fecha: " + empleado.getEmp_apellidoNombre());
         System.out.println("fecha del ultimo pedido" + fechaUltimoPedido); //PRUEBA
         System.out.println("TIEMPO PRODUCCION PEDIDO: " + tiempoProduccionNuevoPedido); //PRUEBA
+
+        int tiempoTotal = calcularTiempoAsignado(empleado);
+        if (tiempoTotal == 0) {
+            // Manejar el caso donde no hay pedidos
+            System.out.println("No hay pedidos en preparación para el cocinero: " + empleado.getEmp_dni());
+            return null; // O alguna fecha predeterminada
+        }
+
         if (fechaUltimoPedido == null) {
             throw new IllegalArgumentException("No se encontró ningún pedido para el cocinero.");
         }
@@ -256,16 +288,28 @@ public class PedidoService {
         // Crear un calendario a partir de la fecha del último pedido
         Calendar entregaCalendar = Calendar.getInstance();
         entregaCalendar.setTimeInMillis(fechaUltimoPedido.getTime());
-        // Calcular los minutos disponibles en un día
+        System.out.println("comprobando calendario: " + entregaCalendar);
+        System.out.println(aperturaManana);
+        System.out.println(cierreManana);
+        System.out.println(aperturaTarde);
+        System.out.println(cierreTarde);
+        // Calcular los minutos disponibles que hay en total en un dia del negocio
         int minutosDisponiblesPorDia = calcularMinutosDisponiblesPorDia(aperturaManana, cierreManana, aperturaTarde, cierreTarde);
 
         // Sumar el tiempo de producción al calendario
         while (tiempoProduccionNuevoPedido > 0) {
             // Verificar si estamos dentro del horario de apertura
             if (isDentroDelHorario(entregaCalendar, aperturaManana, cierreManana, aperturaTarde, cierreTarde)) {
+
                 // Calcular los minutos restantes hasta el cierre del turno correspondiente
                 int minutosRestantes = calcularMinutosRestantes(entregaCalendar, aperturaManana, cierreManana, aperturaTarde, cierreTarde);
                 System.out.println("MINUTOS RESTANTES: " + minutosRestantes); //PRUEBA
+
+                //---------------------------
+                if (minutosRestantes == 0) {
+                    throw new IllegalArgumentException("Bucle infinito de 0");
+                }
+                //---------------------------
 
                 if (minutosRestantes > 0) {
                     // Si el tiempo de producción restante es menor o igual a los minutos restantes
@@ -299,6 +343,9 @@ public class PedidoService {
             finHorario.setTime(cierreManana);
         } else if (entregaCalendar.after(cierreManana) && entregaCalendar.before(aperturaTarde)) {
             // Si estamos entre el cierre de la mañana y la apertura de la tarde
+            finHorario.setTime(cierreTarde);
+        } else if (entregaCalendar.after(aperturaTarde) && entregaCalendar.before(cierreTarde)) {
+            // Si estamos en la tarde
             finHorario.setTime(cierreTarde);
         } else {
             // Si estamos fuera del horario, no hay minutos restantes
@@ -375,7 +422,7 @@ public class PedidoService {
 
         // Información del pedido
         comprobante.append("Comprobante de Pedido\n");
-        comprobante.append("Fecha de Creación: ").append(pedido.getPed_fechaDeCreacion()).append("\n");
+        comprobante.append("Fecha de Creación: ").append(pedido.getPedFechaDeCreacion()).append("\n");
         comprobante.append("Fecha de Envío/Retiros: ").append(pedido.getPedFechaDeEntrega()).append("\n");
         comprobante.append("Descripción: ").append(pedido.getPed_descripcion()).append("\n");
         comprobante.append("Estado: ").append(pedido.getPedEstado()).append("\n");

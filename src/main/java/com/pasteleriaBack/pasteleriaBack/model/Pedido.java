@@ -20,7 +20,8 @@ public class Pedido {
     @Enumerated(EnumType.STRING)
     private EstadoEntregaENUM ped_entrega; // tipo enum
 
-    private Timestamp ped_fechaDeCreacion;
+    @Column(name = "ped_fechaDeCreacion")
+    private Timestamp pedFechaDeCreacion;
 
     @Column(name = "ped_fechaDeEntrega")
     private Timestamp pedFechaDeEntrega;
@@ -78,12 +79,12 @@ public class Pedido {
         this.ped_entrega = ped_entrega;
     }
 
-    public Timestamp getPed_fechaDeCreacion() {
-        return ped_fechaDeCreacion;
+    public Timestamp getPedFechaDeCreacion() {
+        return pedFechaDeCreacion;
     }
 
-    public void setPed_fechaDeCreacion(Timestamp ped_fechaDeCreacion) {
-        this.ped_fechaDeCreacion = ped_fechaDeCreacion;
+    public void setPedFechaDeCreacion(Timestamp pedFechaDeCreacion) {
+        this.pedFechaDeCreacion = pedFechaDeCreacion;
     }
 
     public Timestamp getPedFechaDeEntrega() {

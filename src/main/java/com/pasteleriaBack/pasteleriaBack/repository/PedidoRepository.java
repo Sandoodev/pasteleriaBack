@@ -16,6 +16,8 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer> {//se l
     List<Pedido> findByEmpleado(Empleado empleado);
     // Método para obtener el último pedido de un cocinero
     Optional<Pedido> findTopByEmpleadoOrderByPedFechaDeEntregaDesc(Empleado empleado);
+    // Método para obtener el último pedido en estado "enPreparacion"
+    Pedido findTopByPedEstadoOrderByPedFechaDeCreacionDesc(EstadoPedidoENUM pedEstado);
 }
 
 

@@ -57,6 +57,7 @@ public class EmpleadoService {
     }
 
     // Método para eliminar un empleado
+    //autor y emp_dni
     public ResponseEntity<Void> deleteEmpleado(Integer dni) {
         if (!empleadoRepository.existsById(dni)) {
             return ResponseEntity.notFound().build();
