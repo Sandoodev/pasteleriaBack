@@ -1,11 +1,15 @@
 package com.pasteleriaBack.pasteleriaBack.repository;
 
+import com.pasteleriaBack.pasteleriaBack.dto.Ingreso;
 import com.pasteleriaBack.pasteleriaBack.model.EstadoPedidoENUM;
 import com.pasteleriaBack.pasteleriaBack.model.Pedido;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.pasteleriaBack.pasteleriaBack.model.Empleado;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,6 +22,14 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer> {//se l
     Optional<Pedido> findTopByEmpleadoOrderByPedFechaDeEntregaDesc(Empleado empleado);
     // Método para obtener el último pedido en estado "enPreparacion"
     Pedido findTopByPedEstadoOrderByPedFechaDeCreacionDesc(EstadoPedidoENUM pedEstado);
+
+    //REQUERIMIENTO 11: REPORTE
+    @Query("SELECT new com.pasteleriaBack.pasteleriaBack.dto.Ingreso(MONTH(p.pedFechaDeCreacion), SUM(p.porcentajeComisionPedidoActual)) " +
+            "FROM Pedido p " +
+            "WHERE p.pedFechaDeCreacion >= :fechaInicio AND p.pedFechaDeCreacion <= :fechaFin " +
+            "AND (p.pedEstado = 'enviado' OR p.pedEstado = 'retirado') " +
+            "GROUP BY MONTH(p.pedFechaDeCreacion)")
+    List<Ingreso> calcularIngresos(@Param("fechaInicio") Timestamp fechaInicio, @Param("fechaFin") Timestamp fechaFin);
 }
 
 

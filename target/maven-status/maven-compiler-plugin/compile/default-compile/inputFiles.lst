@@ -6,6 +6,16 @@ C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pastele
 C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\controller\PedidoController.java
 C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\controller\PedidoProductoController.java
 C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\controller\ProductoController.java
+C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\controller\ReporteController.java
+C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\dto\ClienteDTO.java
+C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\dto\Ingreso.java
+C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\dto\PedidoDomicilioDTO.java
+C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\dto\PedidoDTO.java
+C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\dto\PedidoPorCocinero.java
+C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\dto\ProductoCantidadDTO.java
+C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\dto\ProductoMasSolicitado.java
+C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\dto\ReporteResponse.java
+C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\dto\UpdatePedidoDTO.java
 C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\exception\BusinessLogicException.java
 C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\exception\ResourceNotFoundException.java
 C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\model\Auditoria.java
@@ -16,6 +26,7 @@ C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pastele
 C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\model\EstadoPedidoENUM.java
 C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\model\EstadoProductoENUM.java
 C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\model\HorarioAperturaCierre.java
+C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\model\MotivoEliminacionENUM.java
 C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\model\MotivoEliminacionPedido.java
 C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\model\Pedido.java
 C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\model\PedidoDomicilio.java
@@ -29,6 +40,7 @@ C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pastele
 C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\repository\EmpleadoRepository.java
 C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\repository\HorarioAperturaCierreRepository.java
 C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\repository\MotivoEliminacionPedidoRepository.java
+C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\repository\PedidoDomicilioRepository.java
 C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\repository\PedidoProductoRepository.java
 C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\repository\PedidoRepository.java
 C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\repository\ProductoRepository.java
@@ -40,3 +52,4 @@ C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pastele
 C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\service\PedidoProductoService.java
 C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\service\PedidoService.java
 C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\service\ProductoService.java
+C:\Users\admin\Documents\pasteleriaBack\src\main\java\com\pasteleriaBack\pasteleriaBack\service\ReporteService.java
