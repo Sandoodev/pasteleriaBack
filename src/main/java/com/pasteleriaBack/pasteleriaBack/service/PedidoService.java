@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,6 +36,8 @@ public class PedidoService {
     private EmpleadoRepository empleadoRepository;
     @Autowired
     private HorarioAperturaCierreRepository horarioAperturaCierreRepository;
+    @Autowired
+    private AuditoriaRepository auditoriaRepository;
 
     public Pedido savePedido(Pedido pedido) {
         // Lógica para calcular total, asignar cocinero, etc.
@@ -59,6 +62,43 @@ public class PedidoService {
         updatedPedido.setPed_id(id); // Asegurarse de que el ID se mantenga
         Pedido savedPedido = pedidoRepository.save(updatedPedido);
         return ResponseEntity.ok(savedPedido);
+    }
+
+    //REQUERIIMIENTO 9: Reasignar pedidos a cocineros
+    @Transactional
+    public ResponseEntity<Pedido> reasignarPedido(Integer pedidoId, Integer cocineroDni, Integer autorDni) {
+        // Verificar que autorDni no sea nulo
+        if (autorDni == null) {
+            throw new IllegalArgumentException("El DNI del autor no puede ser nulo");
+        }
+
+        // Buscar el pedido por ID
+        Pedido pedido = pedidoRepository.findById(pedidoId)
+                .orElseThrow(() -> new RuntimeException("Pedido no encontrado con ID: " + pedidoId));
+
+        // Buscar el cocinero por DNI
+        Empleado cocinero = empleadoRepository.findById(cocineroDni)
+                .orElseThrow(() -> new RuntimeException("Cocinero no encontrado con DNI: " + cocineroDni));
+
+        // Buscar el autor por DNI
+        Empleado autor = empleadoRepository.findById(autorDni)
+                .orElseThrow(() -> new RuntimeException("Autor no encontrado con DNI: " + autorDni));
+
+        // Asignar el cocinero al pedido
+        pedido.setEmpleado(cocinero);
+
+        // Guardar el pedido actualizado
+        Pedido pedidoActualizado = pedidoRepository.save(pedido);
+
+        // Registrar la auditoría
+        Auditoria auditoria = new Auditoria();
+        auditoria.setAud_operacion("Reasignación de pedido");
+        auditoria.setAud_detalle("Pedido ID: " + pedidoId + " reasignado a cocinero: " + cocinero.getEmp_apellidoNombre() + " por administrador con DNI: " + autorDni);
+        auditoria.setAutor(autor);
+        auditoria.setFecha(LocalDateTime.now());
+        auditoriaRepository.save(auditoria);
+
+        return ResponseEntity.ok(pedidoActualizado);
     }
 
     // Método para eliminar un pedido

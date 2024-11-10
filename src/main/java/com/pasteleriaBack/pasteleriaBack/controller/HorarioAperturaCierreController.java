@@ -15,6 +15,7 @@ public class HorarioAperturaCierreController {
     @Autowired
     private HorarioAperturaCierreService horarioAperturaCierreService;
 
+    @CrossOrigin
     @PutMapping("/editar")
     public ResponseEntity<HorarioAperturaCierre> editarHorario(
             @RequestParam Integer autorDni, // DNI del autor que realiza el cambio

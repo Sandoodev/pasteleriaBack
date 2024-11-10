@@ -37,6 +37,17 @@ public class PedidoController {
         return pedidoService.createPedido(pedidoDTO);
     }
 
+    //requerimiento 9: reasignar pedido a cocinero
+    @CrossOrigin
+    @PutMapping("/reasignar/{pedidoId}")
+    public ResponseEntity<Pedido> reasignarPedido(
+            @PathVariable Integer pedidoId,
+            @RequestParam Integer cocineroDni,
+            @RequestParam Integer autorDni) {
+
+        return pedidoService.reasignarPedido(pedidoId, cocineroDni, autorDni);
+    }
+
     @CrossOrigin
     @PutMapping("/{id}")
     public ResponseEntity<Pedido> updatePedido(@PathVariable Integer id, @RequestBody Pedido updatedPedido) {
