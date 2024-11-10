@@ -2,6 +2,7 @@ package com.pasteleriaBack.pasteleriaBack.service;
 
 import com.pasteleriaBack.pasteleriaBack.dto.PedidoDTO;
 import com.pasteleriaBack.pasteleriaBack.dto.ProductoCantidadDTO;
+import com.pasteleriaBack.pasteleriaBack.dto.UpdatePedidoDTO;
 import com.pasteleriaBack.pasteleriaBack.model.*;
 import com.pasteleriaBack.pasteleriaBack.repository.*;
 import jakarta.persistence.EntityManager;
@@ -54,14 +55,107 @@ public class PedidoService {
         Optional<Pedido> pedido = pedidoRepository.findById(id);
         return pedido.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
-    // Método para actualizar un pedido existente
-    public ResponseEntity<Pedido> updatePedido(Integer id, Pedido updatedPedido) {//recibir como parametro los valores a setear, y persistir el objeto
-        if (!pedidoRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
+
+    //RQUERIMIENTO 18: ACTUALIZAR UN PEDIDO
+    @Transactional
+    public ResponseEntity<Object> updatePedido(Integer id, UpdatePedidoDTO updatedPedidoDTO, Integer autorDni) {
+        try {
+            // Verificar si el pedido existe
+            Pedido existingPedido = pedidoRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
+
+            // Actualizar campos del pedido
+            boolean estadoCambiado = false; // Para verificar si el estado ha cambiado
+            if (updatedPedidoDTO.getPed_descripcion() != null) {
+                existingPedido.setPed_descripcion(updatedPedidoDTO.getPed_descripcion());
+            }
+            if (updatedPedidoDTO.getPed_entrega() != null) {
+                existingPedido.setPed_entrega(updatedPedidoDTO.getPed_entrega());
+            }
+            if (updatedPedidoDTO.getPedFechaDeEntrega() != null) {
+                existingPedido.setPedFechaDeEntrega(updatedPedidoDTO.getPedFechaDeEntrega());
+            }
+            if (updatedPedidoDTO.getPedEstado() != null) {
+                estadoCambiado = !existingPedido.getPedEstado().equals(updatedPedidoDTO.getPedEstado());
+                existingPedido.setPedEstado(updatedPedidoDTO.getPedEstado());
+            }
+
+            // Actualizar el cliente si es necesario
+            if (updatedPedidoDTO.getCliente() != null) {
+                Cliente existingCliente = existingPedido.getCliente();
+                if (updatedPedidoDTO.getCliente().getCli_apellidoNombre() != null) {
+                    existingCliente.setCli_apellidoNombre(updatedPedidoDTO.getCliente().getCli_apellidoNombre());
+                }
+                if (updatedPedidoDTO.getCliente().getCli_numCelu() != null) {
+                    existingCliente.setCli_numCelu(updatedPedidoDTO.getCliente().getCli_numCelu());
+                }
+                if (updatedPedidoDTO.getCliente().getCli_nroTelefonoFijo() != null) {
+                    existingCliente.setCli_nroTelefonoFijo(updatedPedidoDTO.getCliente().getCli_nroTelefonoFijo());
+                }
+                if (updatedPedidoDTO.getCliente().getCli_email() != null) {
+                    existingCliente.setCli_email(updatedPedidoDTO.getCliente().getCli_email());
+                }
+                // Guardar el cliente actualizado
+                clienteRepository.save(existingCliente);
+            }
+
+            // Actualizar PedidoDomicilio si corresponde
+            if (updatedPedidoDTO.getPedidoDomicilio() != null) {
+                PedidoDomicilio existingDomicilio = existingPedido.getPedidoDomicilio();
+                if (updatedPedidoDTO.getPedidoDomicilio().getPed_ciudad() != null) {
+                    existingDomicilio.setPed_ciudad(updatedPedidoDTO.getPedidoDomicilio().getPed_ciudad());
+                }
+                if (updatedPedidoDTO.getPedidoDomicilio().getPed_barrio() != null) {
+                    existingDomicilio.setPed_barrio(updatedPedidoDTO.getPedidoDomicilio().getPed_barrio());
+                }
+                if (updatedPedidoDTO.getPedidoDomicilio().getPed_calle() != null) {
+                    existingDomicilio.setPed_calle(updatedPedidoDTO.getPedidoDomicilio().getPed_calle());
+                }
+                if (updatedPedidoDTO.getPedidoDomicilio().getPed_numeroCasa() != null) {
+                    existingDomicilio.setPed_numeroCasa(updatedPedidoDTO.getPedidoDomicilio().getPed_numeroCasa());
+                }
+                if (updatedPedidoDTO.getPedidoDomicilio().getPed_nroApartamento() != null) {
+                    existingDomicilio.setPed_nroApartamento(updatedPedidoDTO.getPedidoDomicilio().getPed_nroApartamento());
+                }
+                if (updatedPedidoDTO.getPedidoDomicilio().getPed_referencia() != null) {
+                    existingDomicilio.setPed_referencia(updatedPedidoDTO.getPedidoDomicilio().getPed_referencia());
+                }
+                // Guardar el domicilio actualizado
+                pedidoDomicilioRepository.save(existingDomicilio);
+            }
+
+            // Verificar si el estado del pedido ha cambiado a "Enviado" o "Retirado"
+            if (estadoCambiado && (updatedPedidoDTO.getPedEstado() == EstadoPedidoENUM.enviado || updatedPedidoDTO.getPedEstado() == EstadoPedidoENUM.retirado)) {
+                // Calcular y actualizar la comisión
+                double porcentajeComision = existingPedido.getEmpleado().getEmp_porcentajeComisionPedido();
+                existingPedido.setPorcentajeComisionPedidoActual(porcentajeComision);
+            }
+
+            // Guardar el pedido actualizado
+            Pedido savedPedido = pedidoRepository.save(existingPedido);
+
+            // Buscar el autor por DNI
+            Empleado autor = empleadoRepository.findById(autorDni)
+                    .orElseThrow(() -> new RuntimeException("Autor no encontrado con DNI: " + autorDni));
+
+            // Registrar la auditoría
+            Auditoria auditoria = new Auditoria();
+            auditoria.setAud_operacion("Actualización de pedido");
+            auditoria.setAud_detalle("Pedido ID: " + id + " actualizado. Descripción anterior: " + existingPedido.getPed_descripcion() +
+                    ", Nueva descripción: " + updatedPedidoDTO.getPed_descripcion() +
+                    ", Estado anterior: " + existingPedido.getPedEstado() +
+                    ", Nuevo estado: " + updatedPedidoDTO.getPedEstado());
+            auditoria.setFecha(LocalDateTime.now());
+            auditoria.setAutor(autor); // Usar el DNI del autor pasado como parámetro
+            auditoriaRepository.save(auditoria);
+
+            // Retornar la respuesta con el pedido actualizado
+            return ResponseEntity.ok(savedPedido);
+        } catch (Exception e) {
+            // Manejo de excepciones
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al actualizar el pedido: " + e.getMessage());
         }
-        updatedPedido.setPed_id(id); // Asegurarse de que el ID se mantenga
-        Pedido savedPedido = pedidoRepository.save(updatedPedido);
-        return ResponseEntity.ok(savedPedido);
     }
 
     //REQUERIIMIENTO 9: Reasignar pedidos a cocineros

@@ -1,6 +1,7 @@
 package com.pasteleriaBack.pasteleriaBack.controller;
 
 import com.pasteleriaBack.pasteleriaBack.dto.PedidoDTO;
+import com.pasteleriaBack.pasteleriaBack.dto.UpdatePedidoDTO;
 import com.pasteleriaBack.pasteleriaBack.model.Pedido;
 import com.pasteleriaBack.pasteleriaBack.service.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,11 +48,14 @@ public class PedidoController {
 
         return pedidoService.reasignarPedido(pedidoId, cocineroDni, autorDni);
     }
-
+    //REQUERIMIENTO 18: actualizacion de pedido
     @CrossOrigin
     @PutMapping("/{id}")
-    public ResponseEntity<Pedido> updatePedido(@PathVariable Integer id, @RequestBody Pedido updatedPedido) {
-        return pedidoService.updatePedido(id, updatedPedido);
+    public ResponseEntity<Object> updatePedido(
+            @PathVariable Integer id,
+            @RequestBody UpdatePedidoDTO updatePedidoDTO, // Asegúrate de que este sea el tipo correcto
+            @RequestParam Integer autorDni) {
+        return pedidoService.updatePedido(id, updatePedidoDTO, autorDni);
     }
 
     @CrossOrigin
