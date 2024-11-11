@@ -22,7 +22,7 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer> {//se l
     Optional<Pedido> findTopByEmpleadoOrderByPedFechaDeEntregaDesc(Empleado empleado);
     // Método para obtener el último pedido en estado "enPreparacion"
     Pedido findTopByPedEstadoOrderByPedFechaDeCreacionDesc(EstadoPedidoENUM pedEstado);
-
+    List<Pedido> findByEmpleadoOrderByPedFechaDeEntregaDesc(Empleado empleado);
     //REQUERIMIENTO 11: REPORTE
     @Query("SELECT new com.pasteleriaBack.pasteleriaBack.dto.Ingreso(MONTH(p.pedFechaDeCreacion), SUM(p.porcentajeComisionPedidoActual)) " +
             "FROM Pedido p " +
