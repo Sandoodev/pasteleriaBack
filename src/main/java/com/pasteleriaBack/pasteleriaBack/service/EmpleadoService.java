@@ -130,41 +130,58 @@ public class EmpleadoService {
         return ResponseEntity.ok("Límite de jornada laboral actualizado correctamente.");
     }
 
-    //REQUERIMIENTO 7: registracion de un nuevo empleado por el admin
-    public ResponseEntity<Empleado> createCocinero(Empleado nuevoCocinero, Integer dniAdministrador) {
+    public ResponseEntity<Empleado> createEmpleado(Empleado nuevoEmpleado, Integer dniAdministrador) {
+        System.out.println(nuevoEmpleado.getEmp_dni());
+        System.out.println(dniAdministrador);
+
         if (dniAdministrador == null) {
             return ResponseEntity.badRequest().body(null); // Manejar el caso donde el DNI es nulo
         }
 
-        // Verificar que el DNI del nuevo cocinero no sea nulo
-        if (nuevoCocinero.getEmp_dni() == null) {
-            return ResponseEntity.badRequest().body(null); // Manejar el caso donde el DNI del cocinero es nulo
+        // Verificar que el DNI del nuevo empleado no sea nulo
+        if (nuevoEmpleado.getEmp_dni() == null) {
+            return ResponseEntity.badRequest().body(null); // Manejar el caso donde el DNI del empleado es nulo
         }
 
         // Verificar si el DNI ya existe
-        if (empleadoRepository.existsById(nuevoCocinero.getEmp_dni())) {
+        if (empleadoRepository.existsById(nuevoEmpleado.getEmp_dni())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build(); // 409 Conflict
         }
 
-        // Establecer el rol del empleado como "Cocinero"
-        nuevoCocinero.setEmpRol(RolEmpleadoENUM.Cocinero);
+        // Convertir el rol de String a RolEmpleadoENUM
+        String rolString = nuevoEmpleado.getEmpRol().name();
+        RolEmpleadoENUM rol;
+        try {
+            rol = RolEmpleadoENUM.valueOf(rolString);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null); // Manejar el caso donde el rol no es válido
+        }
 
-        // Guardar el nuevo cocinero
-        Empleado savedCocinero = empleadoRepository.save(nuevoCocinero);
+        // Verificar que el rol no sea nulo
+        if (nuevoEmpleado.getEmpRol() == null) {
+            System.out.println("Lo toma como nulo");
+            return ResponseEntity.badRequest().body(null); // Manejar el caso donde el rol es nulo
+        }
 
-        // Obtener el administrador que está registrando al cocinero
+        // Asignar el rol convertido al nuevo empleado
+        nuevoEmpleado.setEmpRol(rol);
+
+        // Guardar el nuevo empleado
+        Empleado savedEmpleado = empleadoRepository.save(nuevoEmpleado);
+
+        // Obtener el administrador que está registrando al nuevo empleado
         Empleado administrador = empleadoRepository.findById(dniAdministrador)
                 .orElseThrow(() -> new RuntimeException("Administrador no encontrado"));
 
         // Registrar la auditoría
         Auditoria auditoria = new Auditoria();
-        auditoria.setAud_operacion("Registro de cocinero");
-        auditoria.setAud_detalle("El administrador " + administrador.getEmp_apellidoNombre() + " registró al cocinero: " + nuevoCocinero.getEmp_apellidoNombre());
+        auditoria.setAud_operacion("Registro de empleado");
+        auditoria.setAud_detalle("El administrador " + administrador.getEmp_apellidoNombre() + " registró al empleado: " + nuevoEmpleado.getEmp_apellidoNombre() + " con rol: " + nuevoEmpleado.getEmpRol());
         auditoria.setFecha(LocalDateTime.now());
-        auditoria.setAutor(administrador); // Guardar el DNI del administrador
+        auditoria.setAutor(administrador);
         auditoriaRepository.save(auditoria);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedCocinero); // 201 Created
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedEmpleado); // 201 Created
     }
 
     // REQUERIMIENTO 8: actualizar un cocinero existente

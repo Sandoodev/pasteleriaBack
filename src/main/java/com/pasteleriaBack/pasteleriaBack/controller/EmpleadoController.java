@@ -1,6 +1,7 @@
 package com.pasteleriaBack.pasteleriaBack.controller;
 
 import com.pasteleriaBack.pasteleriaBack.model.Empleado;
+import com.pasteleriaBack.pasteleriaBack.model.RolEmpleadoENUM; // Asegúrate de importar el enum
 import com.pasteleriaBack.pasteleriaBack.service.EmpleadoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -45,7 +46,7 @@ public class EmpleadoController {
     }
 
     // Otros métodos
-    //metodo para REQUERIMIENTO 3: cambio de horario de jornada por parte del administrador al cocinero, ademas del registro en auditoria
+    // Método para REQUERIMIENTO 3: cambio de horario de jornada por parte del administrador al cocinero, además del registro en auditoría
     @PutMapping("/{dni}/limiteJornada")
     public ResponseEntity<String> editarLimiteJornada(
             @PathVariable Integer dni,
@@ -53,14 +54,17 @@ public class EmpleadoController {
             @RequestParam Double nuevoLimite) {
         return empleadoService.editarLimiteJornadaLaboral(dniAdministrador, dni, nuevoLimite);
     }
-    //REQUERIMIENTO 7: crear un cocinero
+
+    // REQUERIMIENTO 7: crear un nuevo empleado (cocinero o administrador)
     @CrossOrigin
-    @PostMapping("/createCocinero")
-    public ResponseEntity<Empleado> createCocinero(@RequestBody Empleado nuevoCocinero, @RequestParam Integer dniAdministrador) {
-        return empleadoService.createCocinero(nuevoCocinero, dniAdministrador);
+    @PostMapping("/createEmpleado")
+    public ResponseEntity<Empleado> createEmpleado(
+            @RequestBody Empleado nuevoEmpleado,
+            @RequestParam Integer dniAdministrador) {
+        return empleadoService.createEmpleado(nuevoEmpleado, dniAdministrador);
     }
 
-    //REQUERIMIENTO 8: ACTUALIZANDO COCINERO POR EL ADMIN
+    // REQUERIMIENTO 8: ACTUALIZANDO COCINERO POR EL ADMIN
     @CrossOrigin
     @PutMapping("/updateCocinero/{dni}")
     public ResponseEntity<String> updateCocinero(
@@ -70,4 +74,3 @@ public class EmpleadoController {
         return empleadoService.updateCocinero(dni, updatedEmpleado, dniAdministrador);
     }
 }
-
