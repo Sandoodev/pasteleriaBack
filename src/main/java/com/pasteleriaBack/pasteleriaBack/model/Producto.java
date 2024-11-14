@@ -13,7 +13,7 @@ public class Producto {
     private Integer prod_id;
 
     private String prod_descripcion;
-    private byte[] prod_imagen;
+    private String prod_imagen;
     private Double prod_precioCosto;
     private Double prod_precioVenta;
     private Integer prod_tiempoDeProduccion;
@@ -47,11 +47,11 @@ public class Producto {
         this.prod_descripcion = prod_descripcion;
     }
 
-    public byte[] getProd_imagen() {
+    public String getProd_imagen() {
         return prod_imagen;
     }
 
-    public void setProd_imagen(byte[] prod_imagen) {
+    public void setProd_imagen(String prod_imagen) {
         this.prod_imagen = prod_imagen;
     }
 
