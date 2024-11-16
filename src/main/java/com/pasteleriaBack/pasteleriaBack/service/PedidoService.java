@@ -3,6 +3,7 @@ package com.pasteleriaBack.pasteleriaBack.service;
 import com.pasteleriaBack.pasteleriaBack.dto.PedidoDTO;
 import com.pasteleriaBack.pasteleriaBack.dto.ProductoCantidadDTO;
 import com.pasteleriaBack.pasteleriaBack.dto.UpdatePedidoDTO;
+import com.pasteleriaBack.pasteleriaBack.exception.ResourceNotFoundException;
 import com.pasteleriaBack.pasteleriaBack.model.*;
 import com.pasteleriaBack.pasteleriaBack.repository.*;
 import jakarta.persistence.EntityManager;
@@ -40,6 +41,8 @@ public class PedidoService {
     private HorarioAperturaCierreRepository horarioAperturaCierreRepository;
     @Autowired
     private AuditoriaRepository auditoriaRepository;
+    @Autowired
+    private MotivoEliminacionPedidoRepository motivoEliminacionPedidoRepository;
 
     public Pedido savePedido(Pedido pedido) {
         // Lógica para calcular total, asignar cocinero, etc.
@@ -157,6 +160,39 @@ public class PedidoService {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error al actualizar el pedido: " + e.getMessage());
         }
+    }
+
+    @Transactional
+    public ResponseEntity<Void> eliminarPedido(Integer id, String motivo, String descripcion, Integer dniAutor) {
+        // Verificar si el pedido existe
+        Pedido pedido = pedidoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Pedido no encontrado"));
+
+        // Cambiar el estado del pedido a "eliminado"
+        pedido.setPedEstado(EstadoPedidoENUM.eliminado);
+        pedidoRepository.save(pedido); // Guardar el cambio en el estado
+
+        // Registrar el motivo de eliminación
+        MotivoEliminacionPedido motivoEliminacion = new MotivoEliminacionPedido();
+        motivoEliminacion.setPedido(pedido);
+        motivoEliminacion.setPed_motivoEliminacion(MotivoEliminacionENUM.valueOf(motivo));
+        motivoEliminacion.setDescripcion(descripcion);
+        motivoEliminacionPedidoRepository.save(motivoEliminacion); // Guardar el motivo de eliminación
+
+        // Obtener el empleado que realiza la eliminación
+        Empleado autor = empleadoRepository.findById(dniAutor)
+                .orElseThrow(() -> new ResourceNotFoundException("Empleado no encontrado con DNI: " + dniAutor));
+
+        // Registrar la auditoría
+        Auditoria auditoria = new Auditoria();
+        auditoria.setAud_operacion("Eliminación lógica de pedido");
+        auditoria.setAud_detalle("Pedido ID: " + id + " marcado como eliminado. Motivo: " + motivo +
+                (descripcion != null ? ", Descripción: " + descripcion : ""));
+        auditoria.setFecha(LocalDateTime.now());
+        auditoria.setAutor(autor); // Asignar el empleado autor
+        auditoriaRepository.save(auditoria); // Guardar el registro de auditoría
+
+        return ResponseEntity.noContent().build(); // Retornar respuesta sin contenido
     }
 
     //REQUERIIMIENTO 9: Reasignar pedidos a cocineros

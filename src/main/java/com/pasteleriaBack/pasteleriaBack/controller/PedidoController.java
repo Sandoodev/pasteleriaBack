@@ -60,8 +60,12 @@ public class PedidoController {
 
     @CrossOrigin
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePedido(@PathVariable Integer id) {
-        return pedidoService.deletePedido(id);
+    public ResponseEntity<Void> deletePedido(
+            @PathVariable Integer id,
+            @RequestParam String motivo,
+            @RequestParam(required = false) String descripcion,
+            @RequestParam Integer dniAutor) { // Agregar dniAutor como parámetro
+        return pedidoService.eliminarPedido(id, motivo, descripcion, dniAutor);
     }
     // Otros métodos
      /*
