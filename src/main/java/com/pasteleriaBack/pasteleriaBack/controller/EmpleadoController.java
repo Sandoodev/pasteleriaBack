@@ -45,8 +45,10 @@ public class EmpleadoController {
         return empleadoService.deleteEmpleado(dni);
     }
 
+
     // Otros métodos
     // Método para REQUERIMIENTO 3: cambio de horario de jornada por parte del administrador al cocinero, además del registro en auditoría
+    @CrossOrigin
     @PutMapping("/{dni}/limiteJornada")
     public ResponseEntity<String> editarLimiteJornada(
             @PathVariable Integer dni,

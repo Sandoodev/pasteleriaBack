@@ -15,6 +15,7 @@ public class PedidoProductoController {
     @Autowired
     private PedidoProductoService pedidoProductoService;
 
+    @CrossOrigin
     @PostMapping
     public ResponseEntity<PedidoProducto> crearPedidoProducto(@RequestBody PedidoProducto pedidoProducto) {
         return ResponseEntity.ok(pedidoProductoService.crearPedidoProducto(pedidoProducto));

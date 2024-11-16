@@ -15,6 +15,7 @@ public class MotivoEliminacionPedidoController {
     @Autowired
     private MotivoEliminacionPedidoService motivoEliminacionPedidoService;
 
+    @CrossOrigin
     @PostMapping
     public ResponseEntity<MotivoEliminacionPedido> crearMotivoEliminacionPedido(@RequestBody MotivoEliminacionPedido motivoEliminacionPedido) {
         return ResponseEntity.ok(motivoEliminacionPedidoService.crearMotivoEliminacionPedido(motivoEliminacionPedido));
