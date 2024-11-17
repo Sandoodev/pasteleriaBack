@@ -198,8 +198,8 @@ public class EmpleadoService {
         existingEmpleado.setEmpRol(updatedEmpleado.getEmpRol());
 
         // Si se proporciona una nueva contraseña, actualizarla
-        if (updatedEmpleado.getEmp_contraseña() != null) {
-            existingEmpleado.setEmp_contraseña(updatedEmpleado.getEmp_contraseña());
+        if (updatedEmpleado.getEmp_contrasena() != null) {
+            existingEmpleado.setEmp_contrasena(updatedEmpleado.getEmp_contrasena());
         }
 
         // Guardar los cambios

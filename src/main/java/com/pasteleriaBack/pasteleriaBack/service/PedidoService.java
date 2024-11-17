@@ -308,10 +308,11 @@ public class PedidoService {
         nuevoPedido.setPedEstado(EstadoPedidoENUM.enPreparacion);
         nuevoPedido.setPed_entrega(pedidoDTO.getPed_entregaDto());
         nuevoPedido.setPed_descripcion(pedidoDTO.getPed_descripcionDto());
-        nuevoPedido.setPorcentajeComisionPedidoActual(pedidoDTO.getPorcentajeComisionPedidoActualDto());
 
         // Asignar cocinero
         Empleado cocinero = asignarCocinero();
+        //se necesita el cocinero para obtener el porcentaje actual
+        nuevoPedido.setPorcentajeComisionPedidoActual(cocinero.getEmp_porcentajeComisionPedido());
         nuevoPedido.setEmpleado(cocinero); // Se asigna en el campo empleado de Pedido
 
         // Manejo de envío a domicilio

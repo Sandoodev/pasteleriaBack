@@ -19,7 +19,7 @@ public class Empleado {
     @Enumerated(EnumType.STRING)
     private EstadoEmpleadoENUM emp_estado; // Usando la enumeración EstadoEmpleado
 
-    private String emp_contraseña;
+    private String emp_contrasena;
     private Integer emp_jornadaLaboral;
 
     @Enumerated(EnumType.STRING)
@@ -90,12 +90,12 @@ public class Empleado {
         this.emp_estado = emp_estado;
     }
 
-    public String getEmp_contraseña() {
-        return emp_contraseña;
+    public String getEmp_contrasena() {
+        return emp_contrasena;
     }
 
-    public void setEmp_contraseña(String emp_contraseña) {
-        this.emp_contraseña = emp_contraseña;
+    public void setEmp_contrasena(String emp_contrasena) {
+        this.emp_contrasena = emp_contrasena;
     }
 
     public Integer getEmp_jornadaLaboral() {
