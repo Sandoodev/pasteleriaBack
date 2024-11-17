@@ -30,7 +30,19 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer> {//se l
             "AND (p.pedEstado = 'enviado' OR p.pedEstado = 'retirado') " +
             "GROUP BY MONTH(p.pedFechaDeCreacion)")
     List<Ingreso> calcularIngresos(@Param("fechaInicio") Timestamp fechaInicio, @Param("fechaFin") Timestamp fechaFin);
-}
+
+
+    //REQUERIMIENTO 17: listar pedidos realizados de un cliente en particular
+    @Query("SELECT p FROM Pedido p " +
+            "WHERE p.pedFechaDeCreacion BETWEEN :fechaInicio AND :fechaFin " +
+            "AND (:dniCliente IS NULL OR p.cliente.cli_dni = :dniCliente) " +
+            "AND (:estadoPedido IS NULL OR p.pedEstado = :estadoPedido) " +
+            "ORDER BY p.pedFechaDeCreacion DESC")
+    List<Pedido> findPedidosEncargados(@Param("fechaInicio") Timestamp fechaInicio,
+                                       @Param("fechaFin") Timestamp fechaFin,
+                                       @Param("dniCliente") String dniCliente,
+                                       @Param("estadoPedido") EstadoPedidoENUM estadoPedido);
+    }
 
 
 

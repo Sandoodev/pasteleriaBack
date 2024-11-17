@@ -3,6 +3,7 @@ package com.pasteleriaBack.pasteleriaBack.service;
 import com.pasteleriaBack.pasteleriaBack.dto.Ingreso;
 import com.pasteleriaBack.pasteleriaBack.dto.ProductoMasSolicitado;
 import com.pasteleriaBack.pasteleriaBack.dto.PedidoPorCocinero;
+import com.pasteleriaBack.pasteleriaBack.dto.ReporteResponse;
 import com.pasteleriaBack.pasteleriaBack.repository.PedidoRepository;
 import com.pasteleriaBack.pasteleriaBack.repository.ProductoRepository;
 import com.pasteleriaBack.pasteleriaBack.repository.EmpleadoRepository;
@@ -24,6 +25,14 @@ public class ReporteService {
 
     @Autowired
     private EmpleadoRepository empleadoRepository;
+
+    public ReporteResponse generarReporte(LocalDate fechaInicio, LocalDate fechaFin) {
+        List<Ingreso> ingresos = generarReporteIngresos(fechaInicio, fechaFin);
+        List<ProductoMasSolicitado> productosMasSolicitados = generarReporteProductosMasSolicitados(fechaInicio, fechaFin);
+        List<PedidoPorCocinero> pedidosPorCocinero = generarReportePedidosPorCocinero(fechaInicio, fechaFin);
+
+        return new ReporteResponse(ingresos, productosMasSolicitados, pedidosPorCocinero);
+    }
 
     public List<Ingreso> generarReporteIngresos(LocalDate fechaInicio, LocalDate fechaFin) {
         // Convertir LocalDate a Timestamp

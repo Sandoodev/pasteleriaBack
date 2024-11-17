@@ -1,5 +1,6 @@
 package com.pasteleriaBack.pasteleriaBack.service;
 
+import com.pasteleriaBack.pasteleriaBack.dto.PedidoClienteDTO;
 import com.pasteleriaBack.pasteleriaBack.dto.PedidoDTO;
 import com.pasteleriaBack.pasteleriaBack.dto.ProductoCantidadDTO;
 import com.pasteleriaBack.pasteleriaBack.dto.UpdatePedidoDTO;
@@ -58,6 +59,47 @@ public class PedidoService {
     public ResponseEntity<Pedido> getPedidoById(Integer id) {
         Optional<Pedido> pedido = pedidoRepository.findById(id);
         return pedido.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    //REQUERIMIENTO 17: listar pedidos realizados por un cliente en particular
+    public List<PedidoClienteDTO> findPedidosEncargados(Timestamp fechaInicio, Timestamp fechaFin, String dniCliente, EstadoPedidoENUM estadoPedido) {
+        List<Pedido> pedidos = pedidoRepository.findPedidosEncargados(fechaInicio, fechaFin, dniCliente, estadoPedido);
+        List<PedidoClienteDTO> pedidosClienteDTO = new ArrayList<>();
+
+        for (Pedido pedido : pedidos) {
+            PedidoClienteDTO pedidoDTO = new PedidoClienteDTO();
+            pedidoDTO.setNombreCliente(pedido.getCliente().getCli_apellidoNombre());
+            pedidoDTO.setDescripcion(pedido.getPed_descripcion());
+            pedidoDTO.setNumeroCelular(pedido.getCliente().getCli_numCelu());
+            pedidoDTO.setTelefonoFijo(pedido.getCliente().getCli_nroTelefonoFijo());
+            pedidoDTO.setEmail(pedido.getCliente().getCli_email());
+            pedidoDTO.setFechaYHoraDeRetiroEnvio(pedido.getPedFechaDeEntrega());
+
+            // Verificar si el pedido tiene un domicilio asociado
+            if (pedido.getPedidoDomicilio() != null) {
+                PedidoDomicilio domicilio = pedido.getPedidoDomicilio();
+                pedidoDTO.setCiudad(domicilio.getPed_ciudad());
+                pedidoDTO.setBarrio(domicilio.getPed_barrio());
+                pedidoDTO.setCalle(domicilio.getPed_calle());
+                pedidoDTO.setNumeroCasa(domicilio.getPed_numeroCasa());
+                pedidoDTO.setNumeroApartamento(domicilio.getPed_nroApartamento());
+                pedidoDTO.setReferencia(domicilio.getPed_referencia());
+            } else {
+                // Asignar valores nulos o vacíos si no hay domicilio
+                pedidoDTO.setCiudad(null);
+                pedidoDTO.setBarrio(null);
+                pedidoDTO.setCalle(null);
+                pedidoDTO.setNumeroCasa(null);
+                pedidoDTO.setNumeroApartamento(null);
+                pedidoDTO.setReferencia(null);
+            }
+
+            pedidoDTO.setEstadoPedido(pedido.getPedEstado().name());
+            pedidoDTO.setNombreApellidoCocinero(pedido.getEmpleado().getEmp_apellidoNombre());
+            pedidosClienteDTO.add(pedidoDTO);
+        }
+
+        return pedidosClienteDTO;
     }
 
     //RQUERIMIENTO 18: ACTUALIZAR UN PEDIDO

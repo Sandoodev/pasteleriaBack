@@ -1,22 +1,24 @@
 package com.pasteleriaBack.pasteleriaBack.service;
 
-import com.pasteleriaBack.pasteleriaBack.model.Auditoria;
-import com.pasteleriaBack.pasteleriaBack.model.Empleado;
-import com.pasteleriaBack.pasteleriaBack.model.HorarioAperturaCierre;
-import com.pasteleriaBack.pasteleriaBack.model.RolEmpleadoENUM;
+import com.pasteleriaBack.pasteleriaBack.exception.ResourceNotFoundException;
+import com.pasteleriaBack.pasteleriaBack.model.*;
 import com.pasteleriaBack.pasteleriaBack.repository.AuditoriaRepository;
 import com.pasteleriaBack.pasteleriaBack.repository.EmpleadoRepository;
 import com.pasteleriaBack.pasteleriaBack.repository.HorarioAperturaCierreRepository;
+import com.pasteleriaBack.pasteleriaBack.repository.PedidoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
 public class EmpleadoService {
@@ -27,6 +29,9 @@ public class EmpleadoService {
 
     @Autowired
     private HorarioAperturaCierreRepository horarioRepository; // Repositorio para horarios
+    @Autowired
+    private PedidoRepository pedidoRepository;
+
 
     // Método para crear un nuevo empleado
     public ResponseEntity<Empleado> crearEmpleado(Empleado empleado) {
@@ -54,16 +59,6 @@ public class EmpleadoService {
         updatedEmpleado.setEmp_dni(dni); // Asegurarse de que el DNI se mantenga
         Empleado savedEmpleado = empleadoRepository.save(updatedEmpleado);
         return ResponseEntity.ok(savedEmpleado);
-    }
-
-    // Método para eliminar un empleado
-    //autor y emp_dni
-    public ResponseEntity<Void> deleteEmpleado(Integer dni) {
-        if (!empleadoRepository.existsById(dni)) {
-            return ResponseEntity.notFound().build();
-        }
-        empleadoRepository.deleteById(dni);
-        return ResponseEntity.noContent().build();
     }
 
     // Otros métodos según los requerimientos
@@ -222,5 +217,132 @@ public class EmpleadoService {
         auditoriaRepository.save(auditoria);
 
         return ResponseEntity.ok("Cocinero actualizado correctamente.");
+    }
+
+    // REQUERIMIENTNO 10: eliminacion de un cocinero
+    @Transactional
+    public ResponseEntity<Void> deleteEmpleado(Integer dni, String motivo, Integer dniAutor) {
+        // Verificar si el cocinero existe
+        Empleado cocinero = empleadoRepository.findById(dni)
+                .orElseThrow(() -> new ResourceNotFoundException("Cocinero no encontrado"));
+
+        // Obtener los pedidos asignados al cocinero
+        List<Pedido> pedidosAsignados = pedidoRepository.findByEmpleado(cocinero);
+
+        // Cambiar el estado del cocinero a "eliminado"
+        cocinero.setEmp_estado(EstadoEmpleadoENUM.inactivo);
+        empleadoRepository.save(cocinero); // Guardar el cambio en el estado
+
+        // Obtener el empleado que realiza la eliminación
+        Empleado autor = empleadoRepository.findById(dniAutor)
+                .orElseThrow(() -> new ResourceNotFoundException("Empleado no encontrado con DNI: " + dniAutor));
+
+        // Registrar la auditoría
+        Auditoria auditoria = new Auditoria();
+        auditoria.setAud_operacion("Eliminación lógica de cocinero");
+        auditoria.setAud_detalle("Cocinero DNI: " + dni + " marcado como eliminado." +
+                (motivo != null ? ", Motivo: " + motivo : ""));
+        auditoria.setFecha(LocalDateTime.now());
+        auditoria.setAutor(autor); // Asigna el empleado autor
+        auditoriaRepository.save(auditoria); // Guarda el registro de auditoría
+
+        // Verifica si hay pedidos asignados
+        if (pedidosAsignados.isEmpty()) {
+            System.out.println("No hay pedidos asignados para el cocinero con DNI: " + dni);
+            return ResponseEntity.noContent().build(); // Retorna respuesta sin contenido
+        }
+
+        // Reasigna los pedidos a otros cocineros
+        for (Pedido pedido : pedidosAsignados) {
+            try {
+                Empleado nuevoCocinero = asignarCocinero();
+                pedido.setEmpleado(nuevoCocinero);
+                pedidoRepository.save(pedido); // Guarda el pedido actualizado
+            } catch (RuntimeException e) {
+                System.err.println("Error al reasignar el pedido ID: " + pedido.getPed_id() + " - " + e.getMessage());
+            }
+        }
+        return ResponseEntity.noContent().build(); // Retornar respuesta sin contenido
+    }
+
+    private Empleado asignarCocinero() {
+        List<Empleado> cocineros = empleadoRepository.findByEmpRol(RolEmpleadoENUM.Cocinero);
+
+        // Filtrar solo los cocineros que están activos
+        List<Empleado> cocinerosActivos = cocineros.stream()
+                .filter(cocinero -> cocinero.getEmp_estado() == EstadoEmpleadoENUM.activo)
+                .collect(Collectors.toList());
+
+        if (cocineros.isEmpty()) {
+            throw new RuntimeException("No hay cocineros disponibles");
+        }
+
+        Empleado cocineroAsignado = null;
+        int tiempoMinimo = Integer.MAX_VALUE;
+
+        for (Empleado cocinero : cocinerosActivos) {
+            // Calcular el tiempo total asignado al cocinero
+            int tiempoAsignado = calcularTiempoAsignado(cocinero);
+            System.out.println("Tiempo asignado para el cocinero " + cocinero.getEmp_dni() + ": " + tiempoAsignado);
+
+            // Aquí no verificamos si el cocinero puede aceptar el nuevo pedido en base a su jornada laboral
+            // Solo buscamos el cocinero con menor carga de trabajo
+            if (tiempoAsignado < tiempoMinimo) {
+                tiempoMinimo = tiempoAsignado;
+                System.out.println("El tiempo minimo es " + tiempoMinimo);
+                cocineroAsignado = cocinero;
+                System.out.println("El cocinero asignado es: " + cocineroAsignado.getEmp_apellidoNombre());
+            }else if (tiempoAsignado == tiempoMinimo) {
+                // Si hay un empate, asignar aleatoriamente entre los cocineros con el mismo tiempo
+                if (new Random().nextBoolean()) {
+                    cocineroAsignado = cocinero;
+                }
+            }
+        }
+
+        if (cocineroAsignado == null) {
+            throw new RuntimeException("No hay cocineros disponibles para asignar el nuevo pedido");
+        }
+
+        return cocineroAsignado;
+    }
+
+    //calcula el tiempo total de produccion de todos los productos juntos del pedido
+    private int calcularTiempoAsignado(Empleado cocinero) {
+        // Obtener todos los pedidos asignados al cocinero
+        System.out.println("Calculando tiempo asignado para el cocinero: " + cocinero.getEmp_dni());
+        List<Pedido> pedidosEnPreparacion = pedidoRepository.findByEmpleadoAndPedEstado(cocinero, EstadoPedidoENUM.enPreparacion);
+
+        int tiempoTotal = 0;
+        for (Pedido pedido : pedidosEnPreparacion) {
+            System.out.println("Hasta aqui tambien llega" + pedido.getPed_id());
+            // Calcular el tiempo de producción de cada pedido
+            int tiempoProduccion = calcularTiempoProduccion(pedido.getPed_id());
+            tiempoTotal += tiempoProduccion;
+        }
+
+        return tiempoTotal; // Devuelve el tiempo total en minutos
+    }
+
+    //obtiene el tiempo total de produccion en minutos de todos los productos del pedido
+    private int calcularTiempoProduccion(int pedidoId) {
+        // Busca el pedido en la base de datos usando el ID
+        Pedido pedido = pedidoRepository.findById(pedidoId)
+                .orElseThrow(() -> new RuntimeException("Pedido no encontrado con ID: " + pedidoId));
+
+        // Inicializa el tiempo total en minutos
+        int tiempoTotal = 0;
+
+        // Itera sobre los productos en el pedido
+        for (PedidoProducto pedidoProducto : pedido.getPedidoProductos()) {
+            // Obtiene el producto asociado al pedido
+            Producto producto = pedidoProducto.getProducto();
+            // Suma el tiempo de producción del producto multiplicado por la cantidad
+            tiempoTotal += producto.getProd_tiempoDeProduccion() * pedidoProducto.getCantidad();
+            System.out.println("producto: " + producto.getProd_tiempoDeProduccion() + " * cantidad: " + pedidoProducto.getCantidad());
+        }
+        // Devuelve el tiempo total en minutos
+        System.out.println("EL TIEMPO TOTAL ES: " + tiempoTotal);
+        return tiempoTotal;
     }
 }

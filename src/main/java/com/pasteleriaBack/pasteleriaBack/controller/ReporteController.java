@@ -6,6 +6,7 @@ import com.pasteleriaBack.pasteleriaBack.dto.PedidoPorCocinero;
 import com.pasteleriaBack.pasteleriaBack.dto.ReporteResponse;
 import com.pasteleriaBack.pasteleriaBack.service.ReporteService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -21,17 +22,20 @@ public class ReporteController {
     //REQUERIMIENTO 11: AL PARECER FUNCIONA
     @CrossOrigin
     @GetMapping
-    public ReporteResponse obtenerReportes(@RequestParam(required = false) String periodo) {
-        LocalDate fechaInicio = LocalDate.now().minusMonths(1); // Por defecto, un mes atrás
-        LocalDate fechaFin = LocalDate.now();
+    public ResponseEntity<ReporteResponse> obtenerReportes(
+            @RequestParam(required = false) LocalDate fechaInicio,
+            @RequestParam(required = false) LocalDate fechaFin) {
 
-        // Aquí puedes agregar lógica para manejar el parámetro "periodo" y ajustar las fechas
+        // Si no se proporcionan fechas, se establecen valores por defecto
+        if (fechaInicio == null) {
+            fechaInicio = LocalDate.now().minusMonths(1); // Por ejemplo, un mes atrás
+        }
+        if (fechaFin == null) {
+            fechaFin = LocalDate.now(); // Fecha actual
+        }
 
-        List<Ingreso> ingresos = reporteService.generarReporteIngresos(fechaInicio, fechaFin);
-        List<ProductoMasSolicitado> productosMasSolicitados = reporteService.generarReporteProductosMasSolicitados(fechaInicio, fechaFin);
-        List<PedidoPorCocinero> pedidosPorCocinero = reporteService.generarReportePedidosPorCocinero(fechaInicio, fechaFin);
-
-        return new ReporteResponse(ingresos, productosMasSolicitados, pedidosPorCocinero);
+        ReporteResponse reporte = reporteService.generarReporte(fechaInicio, fechaFin);
+        return ResponseEntity.ok(reporte);
     }
 
     //POR SI QUIERO PONER DE X FECHA A X FECHA Y NO UN RANGO DETERMINADO

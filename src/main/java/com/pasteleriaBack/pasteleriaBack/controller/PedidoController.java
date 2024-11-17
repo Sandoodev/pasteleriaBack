@@ -1,17 +1,19 @@
 package com.pasteleriaBack.pasteleriaBack.controller;
 
 import com.pasteleriaBack.pasteleriaBack.dto.PedidoDTO;
+import com.pasteleriaBack.pasteleriaBack.dto.PedidoClienteDTO;
 import com.pasteleriaBack.pasteleriaBack.dto.UpdatePedidoDTO;
+import com.pasteleriaBack.pasteleriaBack.model.EstadoPedidoENUM;
 import com.pasteleriaBack.pasteleriaBack.model.Pedido;
 import com.pasteleriaBack.pasteleriaBack.service.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind .annotation .PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 @RestController
@@ -48,6 +50,51 @@ public class PedidoController {
 
         return pedidoService.reasignarPedido(pedidoId, cocineroDni, autorDni);
     }
+
+    //REQUERIMIENTO 17: listado pedidos del cliente
+    @CrossOrigin
+    @GetMapping("/listadoPedidosCliente")
+    public ResponseEntity<List<PedidoClienteDTO>> listarPedidos(
+            @RequestParam(required = false) String dniCliente,
+            @RequestParam(required = false) String estadoPedido,
+            @RequestParam(required = false) String fechaInicio,
+            @RequestParam(required = false) String fechaFin) {
+
+        // Convierte los parámetros de fecha de String a Timestamp
+        Timestamp inicio = null;
+        Timestamp fin = null;
+
+        if (fechaInicio != null) {
+            try {
+                inicio = Timestamp.valueOf(fechaInicio); // Asegúrate de que el formato sea correcto
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().body(null); // Manejar el caso de formato incorrecto
+            }
+        }
+
+        if (fechaFin != null) {
+            try {
+                fin = Timestamp.valueOf(fechaFin); // Asegúrate de que el formato sea correcto
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().body(null); // Manejar el caso de formato incorrecto
+            }
+        }
+        // Convertir el estadoPedido de String a EstadoPedidoENUM
+        EstadoPedidoENUM estado = null;
+        if (estadoPedido != null) {
+            try {
+                estado = EstadoPedidoENUM.fromString(estadoPedido); // Usar el método de conversión
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().body(null); // Manejar el caso en que el estado no es válido
+            }
+        }
+
+        // Llamar al servicio para obtener la lista de pedidos
+        List<PedidoClienteDTO> pedidos = pedidoService.findPedidosEncargados(inicio, fin, dniCliente, estado);
+
+        return ResponseEntity.ok(pedidos);
+    }
+
     //REQUERIMIENTO 18: actualizacion de pedido
     @CrossOrigin
     @PutMapping("/{id}")

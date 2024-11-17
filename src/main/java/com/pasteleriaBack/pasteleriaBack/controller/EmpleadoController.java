@@ -39,13 +39,6 @@ public class EmpleadoController {
         return empleadoService.updateEmpleado(dni, updatedEmpleado);
     }
 
-    @CrossOrigin
-    @DeleteMapping("/{dni}")
-    public ResponseEntity<Void> deleteEmpleado(@PathVariable Integer dni) {
-        return empleadoService.deleteEmpleado(dni);
-    }
-
-
     // Otros métodos
     // Método para REQUERIMIENTO 3: cambio de horario de jornada por parte del administrador al cocinero, además del registro en auditoría
     @CrossOrigin
@@ -75,4 +68,20 @@ public class EmpleadoController {
             @RequestParam Integer dniAdministrador) {
         return empleadoService.updateCocinero(dni, updatedEmpleado, dniAdministrador);
     }
+
+    //REQUERIMIENTO 10: Eliminar cocinero
+    @CrossOrigin
+    @DeleteMapping("/{dni}")
+    public ResponseEntity<Void> deleteEmpleado(
+            @PathVariable Integer dni,
+            @RequestParam(required = false) String motivo,
+            @RequestParam Integer dniAutor) {
+        return empleadoService.deleteEmpleado(dni, motivo, dniAutor);
+    }
+
+    //    @CrossOrigin
+//    @DeleteMapping("/{dni}")
+//    public ResponseEntity<Void> deleteEmpleado(@PathVariable Integer dni) {
+//        return empleadoService.deleteEmpleado(dni);
+//    }
 }
