@@ -5,6 +5,7 @@ import com.pasteleriaBack.pasteleriaBack.service.ProductoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -27,10 +28,25 @@ public class ProductoController {
     }
 
     @CrossOrigin
-    @PostMapping(consumes = "application/json")
-    public ResponseEntity<Producto> createProducto(@RequestBody Producto producto, @RequestParam Integer dniAutor) {
-        return productoService.createProducto(producto, dniAutor);
+    @PostMapping(consumes = {"multipart/form-data"})
+    public ResponseEntity<Producto> createProducto(
+            @RequestParam MultipartFile file,
+            @RequestParam String prodTitulo,
+            @RequestParam String prodDescripcion,
+            @RequestParam Double prodPrecioCosto,
+            @RequestParam Double prodPrecioVenta,
+            @RequestParam Integer prodTiempoDeProduccion,
+            @RequestParam Double prodPorcentajeDescuento,
+            @RequestParam String prodEstado,
+            @RequestParam Integer dniAutor) {
+        return productoService.createProducto(file, prodTitulo, prodDescripcion, prodPrecioCosto, prodPrecioVenta, prodTiempoDeProduccion, prodPorcentajeDescuento, prodEstado, dniAutor);
     }
+
+//    @CrossOrigin
+//    @PostMapping(consumes = "application/json")
+//    public ResponseEntity<Producto> createProducto(@RequestBody Producto producto, @RequestParam Integer dniAutor) {
+//        return productoService.createProducto(producto, dniAutor);
+//    }
 
     //REQUERIMIENTO 5: actualizacion de producto
     @CrossOrigin

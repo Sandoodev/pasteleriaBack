@@ -6,8 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="4c0d1863-d7c8-4f0d-8164-2ffe3b62f76c" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/dto/PedidoDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/dto/PedidoDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/service/PedidoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/service/PedidoService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/controller/ProductoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/controller/ProductoController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/service/ProductoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/service/ProductoService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -140,5 +140,15 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="java.io.IOException" package="java.io" />
+          <option name="timeStamp" value="1" />
+        </breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

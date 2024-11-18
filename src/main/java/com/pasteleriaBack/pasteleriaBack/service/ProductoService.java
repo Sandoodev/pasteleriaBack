@@ -11,7 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -26,20 +29,61 @@ public class ProductoService {
     private EmpleadoRepository empleadoRepository;
 
     // REQUERIMIENTO 4: Crear un nuevo producto por parte del admin
-    public ResponseEntity<Producto> createProducto(Producto producto, Integer dniAutor) {
+    private final String IMAGE_DIRECTORY = "uploads" + File.separator; // Esto se ajustará automáticamente al sistema operativo
+
+    public ResponseEntity<Producto> createProducto(MultipartFile file, String prodTitulo, String prodDescripcion,
+                                                   Double prodPrecioCosto, Double prodPrecioVenta,
+                                                   Integer prodTiempoDeProduccion, Double prodPorcentajeDescuento, String prodEstado, Integer dniAutor) {
+        System.out.println("Hasta aqui llega");
+        // Obtener la ruta absoluta del directorio de trabajo
+        String absolutePath = new File(IMAGE_DIRECTORY).getAbsolutePath();
+        File uploadsDir = new File(absolutePath);
+
         // Validar la entrada
-        if (producto.getProd_descripcion() == null || producto.getProd_descripcion().isEmpty()) {
-            return ResponseEntity.badRequest().body(null); // O lanzar una excepción
-        }
-        if (producto.getProd_precioCosto() == null || producto.getProd_precioCosto() < 0) {
+        if (prodDescripcion == null || prodDescripcion.isEmpty()) {
             return ResponseEntity.badRequest().body(null);
         }
-        if (producto.getProd_precioVenta() == null || producto.getProd_precioVenta() < 0) {
+        if (prodPrecioCosto == null || prodPrecioCosto < 0) {
             return ResponseEntity.badRequest().body(null);
         }
-        if (producto.getProd_tiempoDeProduccion() == null || producto.getProd_tiempoDeProduccion() < 0) {
+        if (prodPrecioVenta == null || prodPrecioVenta < 0) {
             return ResponseEntity.badRequest().body(null);
         }
+        if (prodTiempoDeProduccion == null || prodTiempoDeProduccion < 0) {
+            return ResponseEntity.badRequest().body(null);
+        }
+        System.out.println("hasta aqui tmb llega");
+
+        if (!uploadsDir.exists()) {
+            uploadsDir.mkdirs(); // Crea la carpeta si no existe
+        }
+        // Manejo de la imagen
+        String fileName = file.getOriginalFilename();
+        String filePath =  absolutePath + File.separator + fileName;
+        System.out.println("hasta aqui tmb llega 2 " + filePath);
+
+        try {
+            // Guarda la imagen en el sistema de archivos
+            File destinationFile = new File(filePath);
+            System.out.println(destinationFile + "aqui");
+            file.transferTo(destinationFile);
+        } catch (IOException e) {
+            e.printStackTrace(); // Imprime el stack trace para depuración
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+
+        // Crear un nuevo producto
+        Producto producto = new Producto();
+        producto.setProd_titulo(prodTitulo);
+        producto.setProd_descripcion(prodDescripcion);
+        producto.setProd_precioCosto(prodPrecioCosto);
+        producto.setProd_precioVenta(prodPrecioVenta);
+        producto.setProd_tiempoDeProduccion(prodTiempoDeProduccion);
+        producto.setProd_porcentajeDescuento(prodPorcentajeDescuento);
+        producto.setProd_estado(EstadoProductoENUM.valueOf(prodEstado));
+        producto.setProd_imagen(fileName); // Guarda solo el nombre del archivo o la ruta relativa
+
+        System.out.println("h33asta aqui tmb llega");
 
         // Guardar el producto en la base de datos
         Producto savedProducto = productoRepository.save(producto);
@@ -48,16 +92,50 @@ public class ProductoService {
         Empleado autor = empleadoRepository.findById(dniAutor)
                 .orElseThrow(() -> new RuntimeException("Autor no encontrado"));
 
+        System.out.println("ha324234sta aqui tmb llega");
+
         // Registrar la auditoría
         Auditoria auditoria = new Auditoria();
         auditoria.setAud_operacion("Registro de nuevo producto");
-        auditoria.setAud_detalle("Se registro el producto: " + savedProducto.getProd_descripcion());
+        auditoria.setAud_detalle("Se registró el producto: " + savedProducto.getProd_descripcion());
         auditoria.setFecha(LocalDateTime.now());
-        auditoria.setAutor(autor); // Usar el objeto Empleado del autor
+        auditoria.setAutor(autor);
         auditoriaRepository.save(auditoria);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(savedProducto);
     }
+//    public ResponseEntity<Producto> createProducto(Producto producto, Integer dniAutor) {
+//        // Validar la entrada
+//        if (producto.getProd_descripcion() == null || producto.getProd_descripcion().isEmpty()) {
+//            return ResponseEntity.badRequest().body(null); // O lanzar una excepción
+//        }
+//        if (producto.getProd_precioCosto() == null || producto.getProd_precioCosto() < 0) {
+//            return ResponseEntity.badRequest().body(null);
+//        }
+//        if (producto.getProd_precioVenta() == null || producto.getProd_precioVenta() < 0) {
+//            return ResponseEntity.badRequest().body(null);
+//        }
+//        if (producto.getProd_tiempoDeProduccion() == null || producto.getProd_tiempoDeProduccion() < 0) {
+//            return ResponseEntity.badRequest().body(null);
+//        }
+//
+//        // Guardar el producto en la base de datos
+//        Producto savedProducto = productoRepository.save(producto);
+//
+//        // Obtener el autor (Empleado) que realiza la acción
+//        Empleado autor = empleadoRepository.findById(dniAutor)
+//                .orElseThrow(() -> new RuntimeException("Autor no encontrado"));
+//
+//        // Registrar la auditoría
+//        Auditoria auditoria = new Auditoria();
+//        auditoria.setAud_operacion("Registro de nuevo producto");
+//        auditoria.setAud_detalle("Se registro el producto: " + savedProducto.getProd_descripcion());
+//        auditoria.setFecha(LocalDateTime.now());
+//        auditoria.setAutor(autor); // Usar el objeto Empleado del autor
+//        auditoriaRepository.save(auditoria);
+//
+//        return ResponseEntity.status(HttpStatus.CREATED).body(savedProducto);
+//    }
 
     // Método para obtener todos los productos
     public List<Producto> getAllProductos() {
