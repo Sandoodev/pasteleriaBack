@@ -88,8 +88,19 @@ public class ProductoController {
     //REQUERIMIENTO 5: actualizacion de producto
     @CrossOrigin
     @PutMapping("/{id}")
-    public ResponseEntity<Producto> updateProducto(@PathVariable Integer id, @RequestBody Producto updatedProducto, @RequestParam Integer dniAutor) {
-        return productoService.updateProducto(id, updatedProducto, dniAutor);
+    public ResponseEntity<Producto> updateProducto(
+            @PathVariable Integer id,
+            @RequestParam(required = false) MultipartFile file, // Archivo de imagen opcional
+            @RequestParam(required = false) String prodTitulo,
+            @RequestParam(required = false) String prodDescripcion,
+            @RequestParam(required = false) Double prodPrecioCosto,
+            @RequestParam(required = false) Double prodPrecioVenta,
+            @RequestParam(required = false) Integer prodTiempoDeProduccion,
+            @RequestParam(required = false) Double prodPorcentajeDescuento,
+            @RequestParam(required = false) String prodEstado,
+            @RequestParam Integer dniAutor) {
+
+        return productoService.updateProducto(id, file, prodTitulo, prodDescripcion, prodPrecioCosto, prodPrecioVenta, prodTiempoDeProduccion, prodPorcentajeDescuento, prodEstado, dniAutor);
     }
 
     //REQUERIMIENTO 6: baja logica

@@ -149,7 +149,10 @@ public class ProductoService {
     }
 
     // REQUERIMIENTO 5: Actualizar un producto existente por el administrador
-    public ResponseEntity<Producto> updateProducto(Integer id, Producto updatedProducto, Integer dniAutor) {
+    public ResponseEntity<Producto> updateProducto(Integer id, MultipartFile file, String prodTitulo, String prodDescripcion,
+                                                   Double prodPrecioCosto, Double prodPrecioVenta,
+                                                   Integer prodTiempoDeProduccion, Double prodPorcentajeDescuento,
+                                                   String prodEstado, Integer dniAutor) {
         if (!productoRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
@@ -158,23 +161,43 @@ public class ProductoService {
         Producto existingProducto = productoRepository.findById(id).orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
         // Actualizar solo los campos permitidos
-        if (updatedProducto.getProd_descripcion() != null) {
-            existingProducto.setProd_descripcion(updatedProducto.getProd_descripcion());
+        if (prodTitulo != null) {
+            existingProducto.setProd_titulo(prodTitulo);
         }
-        if (updatedProducto.getProd_imagen() != null) {
-            existingProducto.setProd_imagen(updatedProducto.getProd_imagen());
+        if (prodDescripcion != null) {
+            existingProducto.setProd_descripcion(prodDescripcion);
         }
-        if (updatedProducto.getProd_precioCosto() != null) {
-            existingProducto.setProd_precioCosto(updatedProducto.getProd_precioCosto());
+        if (prodPrecioCosto != null) {
+            existingProducto.setProd_precioCosto(prodPrecioCosto);
         }
-        if (updatedProducto.getProd_precioVenta() != null) {
-            existingProducto.setProd_precioVenta(updatedProducto.getProd_precioVenta());
+        if (prodPrecioVenta != null) {
+            existingProducto.setProd_precioVenta(prodPrecioVenta);
         }
-        if (updatedProducto.getProd_tiempoDeProduccion() != null) {
-            existingProducto.setProd_tiempoDeProduccion(updatedProducto.getProd_tiempoDeProduccion());
+        if (prodTiempoDeProduccion != null) {
+            existingProducto.setProd_tiempoDeProduccion(prodTiempoDeProduccion);
         }
-        if (updatedProducto.getProd_porcentajeDescuento() != null) {
-            existingProducto.setProd_porcentajeDescuento(updatedProducto.getProd_porcentajeDescuento());
+        if (prodPorcentajeDescuento != null) {
+            existingProducto.setProd_porcentajeDescuento(prodPorcentajeDescuento);
+        }
+        if (prodEstado != null) {
+            existingProducto.setProd_estado(EstadoProductoENUM.valueOf(prodEstado));
+        }
+
+        // Manejo de la imagen
+        if (file != null && !file.isEmpty()) {
+            // Guardar la nueva imagen y actualizar el nombre del archivo en el producto
+            String fileName = file.getOriginalFilename();
+            String absolutePath = new File(IMAGE_DIRECTORY).getAbsolutePath();
+            File destinationFile = new File(absolutePath + File.separator + fileName);
+
+            try {
+                // Guarda la imagen en el sistema de archivos
+                file.transferTo(destinationFile);
+                existingProducto.setProd_imagen(fileName); // Actualiza el nombre de la imagen en el producto
+            } catch (IOException e) {
+                e.printStackTrace(); // Imprime el stack trace para depuración
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            }
         }
 
         // Guardar el producto actualizado
