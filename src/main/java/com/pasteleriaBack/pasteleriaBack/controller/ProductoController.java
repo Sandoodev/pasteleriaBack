@@ -3,10 +3,18 @@ package com.pasteleriaBack.pasteleriaBack.controller;
 import com.pasteleriaBack.pasteleriaBack.model.Producto;
 import com.pasteleriaBack.pasteleriaBack.service.ProductoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
@@ -15,10 +23,31 @@ public class ProductoController {
     @Autowired
     private ProductoService productoService;
 
+    private final String IMAGE_DIRECTORY = "uploads" + File.separator;
+
     @CrossOrigin
     @GetMapping
     public List<Producto> getAllProductos() {
         return productoService.getAllProductos();
+    }
+
+    @GetMapping("/uploads/{filename:.+}")
+    @ResponseBody
+    public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
+        try {
+            Path file = Paths.get(IMAGE_DIRECTORY).resolve(filename);
+            Resource resource = new UrlResource(file.toUri());
+
+            if (resource.exists() || resource.isReadable()) {
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                        .body(resource);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (MalformedURLException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     @CrossOrigin
