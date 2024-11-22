@@ -13,6 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -35,7 +37,10 @@ public class ProductoController {
     @ResponseBody
     public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
         try {
-            Path file = Paths.get(IMAGE_DIRECTORY).resolve(filename);
+            // Decodifica el nombre del archivo
+            String decodedFilename = URLDecoder.decode(filename, StandardCharsets.UTF_8.toString());
+
+            Path file = Paths.get(IMAGE_DIRECTORY).resolve(decodedFilename);
             Resource resource = new UrlResource(file.toUri());
 
             if (resource.exists() || resource.isReadable()) {
@@ -47,7 +52,10 @@ public class ProductoController {
             }
         } catch (MalformedURLException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
+
     }
 
     @CrossOrigin
