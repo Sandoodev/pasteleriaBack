@@ -2,6 +2,9 @@ package com.pasteleriaBack.pasteleriaBack.controller;
 
 import com.pasteleriaBack.pasteleriaBack.model.Producto;
 import com.pasteleriaBack.pasteleriaBack.service.ProductoService;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -68,12 +71,12 @@ public class ProductoController {
     @PostMapping(consumes = {"multipart/form-data"})
     public ResponseEntity<Producto> createProducto(
             @RequestParam MultipartFile file,
-            @RequestParam String prodTitulo,
+            @RequestParam @Size(min = 1) String prodTitulo,
             @RequestParam String prodDescripcion,
-            @RequestParam Double prodPrecioCosto,
-            @RequestParam Double prodPrecioVenta,
-            @RequestParam Integer prodTiempoDeProduccion,
-            @RequestParam Double prodPorcentajeDescuento,
+            @RequestParam @DecimalMin("0.0") Double prodPrecioCosto,
+            @RequestParam @DecimalMin("0.0") Double prodPrecioVenta,
+            @RequestParam @Min(0) Integer prodTiempoDeProduccion,
+            @RequestParam @DecimalMin("0.0") Double prodPorcentajeDescuento,
             @RequestParam String prodEstado,
             @RequestParam Integer dniAutor) {
         return productoService.createProducto(file, prodTitulo, prodDescripcion, prodPrecioCosto, prodPrecioVenta, prodTiempoDeProduccion, prodPorcentajeDescuento, prodEstado, dniAutor);

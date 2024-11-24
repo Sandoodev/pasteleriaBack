@@ -434,7 +434,6 @@ public class PedidoService {
     //calcula el tiempo total de produccion de todos los productos juntos del pedido
     private int calcularTiempoAsignado(Empleado cocinero) {
         // Obtener todos los pedidos asignados al cocinero
-        //List<Pedido> pedidos = pedidoRepository.findByEmpleadoAndPedFechaDeEntrega(cocinero, fechaEnvio);
         System.out.println("Calculando tiempo asignado para el cocinero: " + cocinero.getEmp_dni());
         List<Pedido> pedidosEnPreparacion = pedidoRepository.findByEmpleadoAndPedEstado(cocinero, EstadoPedidoENUM.enPreparacion);
 
@@ -623,10 +622,43 @@ public class PedidoService {
     }
 
 
+//    public Timestamp obtenerFechaPenultimoPedido(Empleado empleado) {
+//        // Busca el penúltimo pedido del empleado, ordenado por fecha de entrega
+//        System.out.println("HASTA AQUI LLEGA");
+//        List<Pedido> pedidos = pedidoRepository.findByEmpleadoOrderByPedFechaDeEntregaDesc(empleado);
+//        if (pedidos.getFirst().getPedFechaDeEntrega() == null) {
+//            // Obtener el horario de apertura de la mañana
+//            HorarioAperturaCierre horario = horarioAperturaCierreRepository.findFirstByOrderByHacIdAsc();
+//            Time aperturaManana = horario.getHac_manana_apertura();
+//            System.out.println("aqui entro directooo");
+//            // Obtener la fecha actual
+//            Calendar calendar = Calendar.getInstance();
+//            calendar.set(Calendar.HOUR_OF_DAY, aperturaManana.getHours());
+//            calendar.set(Calendar.MINUTE, aperturaManana.getMinutes());
+//            calendar.set(Calendar.SECOND, 0);
+//            calendar.set(Calendar.MILLISECOND, 0);
+//
+//            // Retornar la fecha actual con horario de apertura de mañana
+//            return new Timestamp(calendar.getTimeInMillis());
+//        }
+//        System.out.println("hasta aqui tambbbbbbbbbbbbbbbbbb");
+//        return pedidos.getFirst().getPedFechaDeEntrega(); // Retorna la fecha del penúltimo pedido
+//    }
+
     public Timestamp obtenerFechaPenultimoPedido(Empleado empleado) {
         // Busca el penúltimo pedido del empleado, ordenado por fecha de entrega
         List<Pedido> pedidos = pedidoRepository.findByEmpleadoOrderByPedFechaDeEntregaDesc(empleado);
-        if (pedidos.getFirst().getPedFechaDeEntrega() == null) {
+
+        // Verifica si la lista de pedidos está vacía
+        if (pedidos.isEmpty()) {
+            System.out.println("ingresa y es null");
+            // decidir qué hacer si no hay pedidos
+            // retornar null, o retornar una fecha por defecto
+            return null;
+        }
+
+        // Si hay pedidos, verifica la fecha de entrega del primer pedido
+        if (pedidos.get(0).getPedFechaDeEntrega() == null) {
             // Obtener el horario de apertura de la mañana
             HorarioAperturaCierre horario = horarioAperturaCierreRepository.findFirstByOrderByHacIdAsc();
             Time aperturaManana = horario.getHac_manana_apertura();
@@ -641,8 +673,11 @@ public class PedidoService {
             // Retornar la fecha actual con horario de apertura de mañana
             return new Timestamp(calendar.getTimeInMillis());
         }
-        return pedidos.getFirst().getPedFechaDeEntrega(); // Retorna la fecha del penúltimo pedido
+
+        // Retorna la fecha del penúltimo pedido
+        return pedidos.get(0).getPedFechaDeEntrega();
     }
+
 
     private void pasarDeTurno(Calendar entregaCalendar, Time aperturaManana, Time cierreManana, Time aperturaTarde) {
         // Verificar si entregaCalendar está dentro del horario de la mañana
