@@ -142,4 +142,21 @@ public class Pedido {
     public void setPorcentajeComisionPedidoActual(Double porcentajeComisionPedidoActual) {
         this.porcentajeComisionPedidoActual = porcentajeComisionPedidoActual;
     }
+
+    @Override
+    public String toString() {
+        return "\nPedido{" +
+                "ped_id=" + ped_id +
+                ", ped_descripcion='" + ped_descripcion + '\'' +
+                ", ped_entrega=" + ped_entrega +
+                ", pedFechaDeCreacion=" + pedFechaDeCreacion +
+                ", pedFechaDeEntrega=" + pedFechaDeEntrega +
+                ", pedEstado=" + pedEstado +
+                ", empleado=" + empleado +
+                ", cliente=" + cliente +
+                ", pedidoProductos=" + pedidoProductos +
+                ", pedidoDomicilio=" + pedidoDomicilio +
+                ", porcentajeComisionPedidoActual=" + porcentajeComisionPedidoActual +
+                '}'+"\n";
+    }
 }
