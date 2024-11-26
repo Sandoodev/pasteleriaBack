@@ -27,7 +27,6 @@ public class Empleado {
     private RolEmpleadoENUM empRol; // Usando la enumeración RolEmpleado
 
     @OneToMany(mappedBy = "empleado")
-    //@JsonIgnore
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     //@JsonBackReference //hijo de pedido, ORIGINALMENTE TENIA ESTE PERO AL HACER EL REQUERIMIENTO 7 ME DABA ERROR 415 POR ESO SE CAMBIO.(TAMBIEN SE CAMBIO LA RELACION CON PEDIDO EN LA CLASE PEDIDO)
     private List<Pedido> pedidos; // Relación con Pedidos

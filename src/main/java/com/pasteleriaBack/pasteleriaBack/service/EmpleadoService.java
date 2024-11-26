@@ -1,5 +1,6 @@
 package com.pasteleriaBack.pasteleriaBack.service;
 
+import com.pasteleriaBack.pasteleriaBack.exception.BusinessLogicException;
 import com.pasteleriaBack.pasteleriaBack.exception.ResourceNotFoundException;
 import com.pasteleriaBack.pasteleriaBack.model.*;
 import com.pasteleriaBack.pasteleriaBack.repository.AuditoriaRepository;
@@ -226,16 +227,21 @@ public class EmpleadoService {
         Empleado cocinero = empleadoRepository.findById(dni)
                 .orElseThrow(() -> new ResourceNotFoundException("Cocinero no encontrado"));
 
+        // Obtener el empleado que realiza la eliminación
+        Empleado autor = empleadoRepository.findById(dniAutor)
+                .orElseThrow(() -> new ResourceNotFoundException("Empleado no encontrado con DNI: " + dniAutor));
+
+        // Verificar si el autor es un administrador y está intentando eliminarse a sí mismo
+        if (cocinero.getEmpRol() == RolEmpleadoENUM.Administrador && cocinero.getEmp_dni().equals(dniAutor)) {
+            throw new BusinessLogicException("Un administrador no puede eliminarse a sí mismo.");
+        }
+
         // Obtener los pedidos asignados al cocinero
         List<Pedido> pedidosAsignados = pedidoRepository.findByEmpleado(cocinero);
 
         // Cambiar el estado del cocinero a "eliminado"
         cocinero.setEmp_estado(EstadoEmpleadoENUM.inactivo);
         empleadoRepository.save(cocinero); // Guardar el cambio en el estado
-
-        // Obtener el empleado que realiza la eliminación
-        Empleado autor = empleadoRepository.findById(dniAutor)
-                .orElseThrow(() -> new ResourceNotFoundException("Empleado no encontrado con DNI: " + dniAutor));
 
         // Registrar la auditoría
         Auditoria auditoria = new Auditoria();
