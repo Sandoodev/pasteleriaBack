@@ -1,6 +1,5 @@
 package com.pasteleriaBack.pasteleriaBack.controller;
 
-import com.pasteleriaBack.pasteleriaBack.model.Empleado;
 import com.pasteleriaBack.pasteleriaBack.model.HorarioAperturaCierre;
 import com.pasteleriaBack.pasteleriaBack.service.HorarioAperturaCierreService;
 import org.springframework.beans.factory.annotation.Autowired;
