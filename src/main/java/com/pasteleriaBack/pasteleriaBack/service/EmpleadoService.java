@@ -197,6 +197,7 @@ public class EmpleadoService {
         existingEmpleado.setEmp_sueldo(updatedEmpleado.getEmp_sueldo());
         existingEmpleado.setEmp_porcentajeComisionPedido(updatedEmpleado.getEmp_porcentajeComisionPedido());
         existingEmpleado.setEmpRol(updatedEmpleado.getEmpRol());
+        existingEmpleado.setEmp_jornadaLaboral(updatedEmpleado.getEmp_jornadaLaboral());
 
         // Si se proporciona una nueva contraseña, actualizarla
         if (updatedEmpleado.getEmp_contrasena() != null) {
