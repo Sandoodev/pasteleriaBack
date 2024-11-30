@@ -19,46 +19,28 @@ public class ReporteController {
     @Autowired
     private ReporteService reporteService;
 
-    //REQUERIMIENTO 11: AL PARECER FUNCIONA
+
+    //POR SI QUIERO PONER DE X FECHA A X FECHA Y NO UN RANGO DETERMINADO
     @CrossOrigin
     @GetMapping
-    public ResponseEntity<ReporteResponse> obtenerReportes(
+    public ReporteResponse obtenerReportes(
             @RequestParam(required = false) LocalDate fechaInicio,
             @RequestParam(required = false) LocalDate fechaFin) {
 
-        // Si no se proporcionan fechas, se establecen valores por defecto
+        // Si no se proporciona fechaInicio, se establece un mes atrás
         if (fechaInicio == null) {
-            fechaInicio = LocalDate.now().minusMonths(1); // Por ejemplo, un mes atrás
+            fechaInicio = LocalDate.now().minusMonths(1).withDayOfMonth(1); // Primer día del mes anterior
         }
+
+        // Si no se proporciona fechaFin, se establece la fecha actual
         if (fechaFin == null) {
             fechaFin = LocalDate.now(); // Fecha actual
         }
 
-        ReporteResponse reporte = reporteService.generarReporte(fechaInicio, fechaFin);
-        return ResponseEntity.ok(reporte);
-    }
+        List<Ingreso> ingresos = reporteService.generarReporteIngresos(fechaInicio, fechaFin);
+        List<ProductoMasSolicitado> productosMasSolicitados = reporteService.generarReporteProductosMasSolicitados(fechaInicio, fechaFin);
+        List<PedidoPorCocinero> pedidosPorCocinero = reporteService.generarReportePedidosPorCocinero(fechaInicio, fechaFin);
 
-    //POR SI QUIERO PONER DE X FECHA A X FECHA Y NO UN RANGO DETERMINADO
-//    @CrossOrigin
-//    @GetMapping
-//    public ReporteResponse obtenerReportes(
-//            @RequestParam(required = false) LocalDate fechaInicio,
-//            @RequestParam(required = false) LocalDate fechaFin) {
-//
-//        // Si no se proporciona fechaInicio, se establece un mes atrás
-//        if (fechaInicio == null) {
-//            fechaInicio = LocalDate.now().minusMonths(1).withDayOfMonth(1); // Primer día del mes anterior
-//        }
-//
-//        // Si no se proporciona fechaFin, se establece la fecha actual
-//        if (fechaFin == null) {
-//            fechaFin = LocalDate.now(); // Fecha actual
-//        }
-//
-//        List<Ingreso> ingresos = reporteService.generarReporteIngresos(fechaInicio, fechaFin);
-//        List<ProductoMasSolicitado> productosMasSolicitados = reporteService.generarReporteProductosMasSolicitados(fechaInicio, fechaFin);
-//        List<PedidoPorCocinero> pedidosPorCocinero = reporteService.generarReportePedidosPorCocinero(fechaInicio, fechaFin);
-//
-//        return new ReporteResponse(ingresos, productosMasSolicitados, pedidosPorCocinero);
-//    }
+        return new ReporteResponse(ingresos, productosMasSolicitados, pedidosPorCocinero);
+    }
 }
