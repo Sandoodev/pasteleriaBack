@@ -3,6 +3,7 @@ package com.pasteleriaBack.pasteleriaBack.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -54,6 +55,10 @@ public class Pedido {
 
     // Getters y Setters
 
+    @JsonProperty("emp_dni")
+    public Integer getEmpDni() {
+        return empleado != null ? empleado.getEmp_dni() : null;
+    }
 
     public Integer getPed_id() {
         return ped_id;
