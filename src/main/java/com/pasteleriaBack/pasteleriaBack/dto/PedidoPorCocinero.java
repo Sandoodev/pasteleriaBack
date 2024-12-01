@@ -1,31 +1,33 @@
 package com.pasteleriaBack.pasteleriaBack.dto;
 
+import com.pasteleriaBack.pasteleriaBack.model.Pedido;
+
+import java.util.List;
 
 public class PedidoPorCocinero {
-    private String nombreCocinero;
-    private long cantidadPedidos;
+    private String cocineroNombre;
+    private List<Pedido> pedidos; // Lista de pedidos realizados por el cocinero
 
-    public PedidoPorCocinero(String nombreCocinero, long cantidadPedidos) {
-        this.nombreCocinero = nombreCocinero;
-        this.cantidadPedidos = cantidadPedidos;
+    public PedidoPorCocinero(String cocineroNombre, List<Pedido> pedidos) {
+        this.cocineroNombre = cocineroNombre;
+        this.pedidos = pedidos;
     }
 
     // Getters y Setters
 
-
-    public String getNombreCocinero() {
-        return nombreCocinero;
+    public String getCocineroNombre() {
+        return cocineroNombre;
     }
 
-    public void setNombreCocinero(String nombreCocinero) {
-        this.nombreCocinero = nombreCocinero;
+    public void setCocineroNombre(String cocineroNombre) {
+        this.cocineroNombre = cocineroNombre;
     }
 
-    public long getCantidadPedidos() {
-        return cantidadPedidos;
+    public List<Pedido> getPedidos() {
+        return pedidos;
     }
 
-    public void setCantidadPedidos(long cantidadPedidos) {
-        this.cantidadPedidos = cantidadPedidos;
+    public void setPedidos(List<Pedido> pedidos) {
+        this.pedidos = pedidos;
     }
 }

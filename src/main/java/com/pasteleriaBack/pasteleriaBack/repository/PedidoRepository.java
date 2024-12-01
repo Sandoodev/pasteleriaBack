@@ -15,15 +15,20 @@ import java.util.Optional;
 
 //con esto(PedidoRepository) podemos acceder a todas las funcionalidades de JpaRepository(creacion,busqueda,borrado,etc)
 public interface PedidoRepository extends JpaRepository<Pedido, Integer> {//se le pasa como parametro la entidad y el tipo de dato de su id
-    List<Pedido> findByEmpleadoAndPedFechaDeEntrega(Empleado empleado, Timestamp fechaEntrega);
     List<Pedido> findByEmpleadoAndPedEstado(Empleado empleado, EstadoPedidoENUM estado);
     List<Pedido> findByEmpleado(Empleado empleado);
-    // Método para obtener el último pedido de un cocinero
-    Optional<Pedido> findTopByEmpleadoOrderByPedFechaDeEntregaDesc(Empleado empleado);
-    // Método para obtener el último pedido en estado "enPreparacion"
-    Pedido findTopByPedEstadoOrderByPedFechaDeCreacionDesc(EstadoPedidoENUM pedEstado);
+
+    //REQUERIMIENTO 11 trae los pedidos realizados entre 2 fechas
+    List<Pedido> findByPedFechaDeCreacionBetweenAndPedEstadoIn(Timestamp inicio, Timestamp fin, List<EstadoPedidoENUM> estados);
+    //REQUERIMIENTO 11: trae los pedidos realizados por el cocinero entre 2 fechas
+    @Query("SELECT p FROM Pedido p WHERE p.pedFechaDeCreacion BETWEEN :fechaInicio AND :fechaFin " +
+            "AND p.pedEstado IN :estados")
+    List<Pedido> findByFechaBetweenAndEstado(@Param("fechaInicio") Timestamp fechaInicio,
+                                             @Param("fechaFin") Timestamp fechaFin,
+                                             @Param("estados") List<EstadoPedidoENUM> estados);
+
     List<Pedido> findByEmpleadoOrderByPedFechaDeEntregaDesc(Empleado empleado);
-    //REQUERIMIENTO 11: REPORTE
+    //REQUERIMIENTO 11: calcula los ingresos del negocio en un rango de fechas
     @Query("SELECT new com.pasteleriaBack.pasteleriaBack.dto.Ingreso(MONTH(p.pedFechaDeCreacion), SUM(p.porcentajeComisionPedidoActual)) " +
             "FROM Pedido p " +
             "WHERE p.pedFechaDeCreacion >= :fechaInicio AND p.pedFechaDeCreacion <= :fechaFin " +

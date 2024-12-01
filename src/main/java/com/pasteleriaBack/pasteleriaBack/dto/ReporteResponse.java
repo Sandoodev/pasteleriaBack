@@ -3,11 +3,11 @@ package com.pasteleriaBack.pasteleriaBack.dto;
 import java.util.List;
 
 public class ReporteResponse {
-    private List<Ingreso> ingresos;
+    private Double ingresos;
     private List<ProductoMasSolicitado> productosMasSolicitados;
     private List<PedidoPorCocinero> pedidosPorCocinero;
 
-    public ReporteResponse(List<Ingreso> ingresos, List<ProductoMasSolicitado> productosMasSolicitados, List<PedidoPorCocinero> pedidosPorCocinero) {
+    public ReporteResponse(Double ingresos, List<ProductoMasSolicitado> productosMasSolicitados, List<PedidoPorCocinero> pedidosPorCocinero) {
         this.ingresos = ingresos;
         this.productosMasSolicitados = productosMasSolicitados;
         this.pedidosPorCocinero = pedidosPorCocinero;
@@ -15,11 +15,11 @@ public class ReporteResponse {
 
     // Getters y Setters
 
-    public List<Ingreso> getIngresos() {
+    public Double getIngresos() {
         return ingresos;
     }
 
-    public void setIngresos(List<Ingreso> ingresos) {
+    public void setIngresos(Double ingresos) {
         this.ingresos = ingresos;
     }
 

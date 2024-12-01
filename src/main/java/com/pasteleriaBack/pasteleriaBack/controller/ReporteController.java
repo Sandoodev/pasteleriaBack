@@ -37,7 +37,7 @@ public class ReporteController {
             fechaFin = LocalDate.now(); // Fecha actual
         }
 
-        List<Ingreso> ingresos = reporteService.generarReporteIngresos(fechaInicio, fechaFin);
+        Double ingresos = reporteService.generarReporteIngresos(fechaInicio, fechaFin);
         List<ProductoMasSolicitado> productosMasSolicitados = reporteService.generarReporteProductosMasSolicitados(fechaInicio, fechaFin);
         List<PedidoPorCocinero> pedidosPorCocinero = reporteService.generarReportePedidosPorCocinero(fechaInicio, fechaFin);
 

@@ -1,30 +1,28 @@
 package com.pasteleriaBack.pasteleriaBack.dto;
 
 public class Ingreso {
-    private int mes;
-    private double total;
+    private Integer pedidoId;
+    private Double monto;
 
-    public Ingreso(int mes, double total) {
-        this.mes = mes;
-        this.total = total;
+    public Ingreso(Integer pedidoId, Double monto) {
+        this.pedidoId = pedidoId;
+        this.monto = monto;
     }
 
     // Getters y Setters
-
-
-    public int getMes() {
-        return mes;
+    public Integer getPedidoId() {
+        return pedidoId;
     }
 
-    public void setMes(int mes) {
-        this.mes = mes;
+    public void setPedidoId(Integer pedidoId) {
+        this.pedidoId = pedidoId;
     }
 
-    public double getTotal() {
-        return total;
+    public Double getMonto() {
+        return monto;
     }
 
-    public void setTotal(double total) {
-        this.total = total;
+    public void setMonto(Double monto) {
+        this.monto = monto;
     }
 }

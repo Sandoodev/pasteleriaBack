@@ -3,7 +3,6 @@ package com.pasteleriaBack.pasteleriaBack.dto;
 import com.pasteleriaBack.pasteleriaBack.model.EstadoEntregaENUM;
 import com.pasteleriaBack.pasteleriaBack.model.EstadoPedidoENUM;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 import java.sql.Timestamp;
 
