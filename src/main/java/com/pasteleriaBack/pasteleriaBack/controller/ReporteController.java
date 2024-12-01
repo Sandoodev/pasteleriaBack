@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/reportes")
@@ -37,7 +38,7 @@ public class ReporteController {
             fechaFin = LocalDate.now(); // Fecha actual
         }
 
-        Double ingresos = reporteService.generarReporteIngresos(fechaInicio, fechaFin);
+        Map<String, Double> ingresos = reporteService.generarReporteIngresos(fechaInicio, fechaFin);
         List<ProductoMasSolicitado> productosMasSolicitados = reporteService.generarReporteProductosMasSolicitados(fechaInicio, fechaFin);
         List<PedidoPorCocinero> pedidosPorCocinero = reporteService.generarReportePedidosPorCocinero(fechaInicio, fechaFin);
 

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,7 +34,7 @@ public class ReporteService {
     private EmpleadoRepository empleadoRepository;
 
     public ReporteResponse generarReporte(LocalDate fechaInicio, LocalDate fechaFin) {
-        Double ingresos = generarReporteIngresos(fechaInicio, fechaFin);
+        Map<String, Double> ingresos = generarReporteIngresos(fechaInicio, fechaFin);
         List<ProductoMasSolicitado> productosMasSolicitados = generarReporteProductosMasSolicitados(fechaInicio, fechaFin);
         List<PedidoPorCocinero> pedidosPorCocinero = generarReportePedidosPorCocinero(fechaInicio, fechaFin);
 
@@ -41,7 +42,7 @@ public class ReporteService {
     }
 
     //retorna la suma total de ingresos
-    public Double generarReporteIngresos(LocalDate fechaInicio, LocalDate fechaFin) {
+    public Map<String, Double> generarReporteIngresos(LocalDate fechaInicio, LocalDate fechaFin) {
         // Convertir LocalDate a Timestamp
         Timestamp inicio = Timestamp.valueOf(fechaInicio.atStartOfDay());
         Timestamp fin = Timestamp.valueOf(fechaFin.atStartOfDay());
@@ -49,9 +50,7 @@ public class ReporteService {
         // Definir los estados que queremos considerar
         List<EstadoPedidoENUM> estados = List.of(
                 EstadoPedidoENUM.enviado,
-                EstadoPedidoENUM.retirado,
-                EstadoPedidoENUM.pendienteDeEnvio,
-                EstadoPedidoENUM.pendienteDeRetiro
+                EstadoPedidoENUM.retirado
         );
 
         // Obtener todos los pedidos en el rango de fechas y con los estados especificados
@@ -59,14 +58,38 @@ public class ReporteService {
 
         // Calcular ingresos
         Double totalIngresos = 0.0;
+        Double totalCostos = 0.0;
+        Double totalGanancias = 0.0;
         for (Pedido pedido : pedidos) {
             for (PedidoProducto pedidoProducto : pedido.getPedidoProductos()) {
+                //calcular ingresos
                 Double ingreso = pedidoProducto.getPrecioVenta() * pedidoProducto.getCantidad();
                 totalIngresos += ingreso;
+
+                // Calcular costos
+                Double costo = pedidoProducto.getPrecioCosto() * pedidoProducto.getCantidad(); // Asegúrate de tener este método
+                totalCostos += costo;
             }
+
+            // Calcular la comisión del pedido
+            Double comision = totalIngresos * (pedido.getPorcentajeComisionPedidoActual() / 100);
+
+            // Calcular ganancias brutas
+            Double gananciasBrutas = totalIngresos - totalCostos;
+
+            // Calcular ganancias netas restando la comisión
+            Double gananciasNetas = gananciasBrutas - comision;
+
+            // Actualizar total de ganancias (puedes acumular o simplemente tomar el último)
+            totalGanancias += gananciasNetas; // Si deseas acumular, inicializa totalGanancias antes del bucle
         }
 
-        return totalIngresos;
+        // Crear un mapa para retornar ambos valores
+        Map<String, Double> reporte = new HashMap<>();
+        reporte.put("totalIngresos", totalIngresos);
+        reporte.put("totalGanancias", totalGanancias);
+
+        return reporte;
     }
 
     public List<ProductoMasSolicitado> generarReporteProductosMasSolicitados(LocalDate fechaInicio, LocalDate fechaFin) {
