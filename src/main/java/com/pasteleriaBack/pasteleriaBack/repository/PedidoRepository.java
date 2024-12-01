@@ -36,6 +36,8 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer> {//se l
             "GROUP BY MONTH(p.pedFechaDeCreacion)")
     List<Ingreso> calcularIngresos(@Param("fechaInicio") Timestamp fechaInicio, @Param("fechaFin") Timestamp fechaFin);
 
+    //REQUERIMIENTO 13:comision por cocinero
+    List<Pedido> findByEmpleadoAndPedFechaDeCreacionBetween(Empleado empleado, Timestamp inicio, Timestamp fin);
 
     //REQUERIMIENTO 17: listar pedidos realizados de un cliente en particular
     @Query("SELECT p FROM Pedido p " +

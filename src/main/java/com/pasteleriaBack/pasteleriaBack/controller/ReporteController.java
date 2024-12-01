@@ -1,9 +1,6 @@
 package com.pasteleriaBack.pasteleriaBack.controller;
 
-import com.pasteleriaBack.pasteleriaBack.dto.Ingreso;
-import com.pasteleriaBack.pasteleriaBack.dto.ProductoMasSolicitado;
-import com.pasteleriaBack.pasteleriaBack.dto.PedidoPorCocinero;
-import com.pasteleriaBack.pasteleriaBack.dto.ReporteResponse;
+import com.pasteleriaBack.pasteleriaBack.dto.*;
 import com.pasteleriaBack.pasteleriaBack.service.ReporteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -43,5 +40,37 @@ public class ReporteController {
         List<PedidoPorCocinero> pedidosPorCocinero = reporteService.generarReportePedidosPorCocinero(fechaInicio, fechaFin);
 
         return new ReporteResponse(ingresos, productosMasSolicitados, pedidosPorCocinero);
+    }
+
+    //REQUERIMIENTO 12
+    @GetMapping("/listarPedidosPorCocinero/{dniCocinero}")
+    public ResponseEntity<List<PedidoPorCocineroDTO>> listarPedidosPorCocinero(
+            @PathVariable Integer dniCocinero,
+            @RequestParam("fechaInicio") String fechaInicio,
+            @RequestParam("fechaFin") String fechaFin) {
+
+        // Convertir las fechas de String a LocalDate
+        LocalDate inicio = LocalDate.parse(fechaInicio);
+        LocalDate fin = LocalDate.parse(fechaFin);
+
+        // Llamar al servicio para obtener los pedidos
+        List<PedidoPorCocineroDTO> pedidos = reporteService.listarPedidosPorCocinero(dniCocinero, inicio, fin);
+
+        // Retornar la respuesta
+        return ResponseEntity.ok(pedidos);
+    }
+
+    //REQUERIMIENTO 13
+    @GetMapping("/{dniCocinero}")
+    public ResponseEntity<List<ComisionPorCocineroDTO>> obtenerComisionesPorCocinero(
+            @PathVariable Integer dniCocinero,
+            @RequestParam String fechaInicio,
+            @RequestParam String fechaFin) {
+
+        LocalDate inicio = LocalDate.parse(fechaInicio);
+        LocalDate fin = LocalDate.parse(fechaFin);
+
+        List<ComisionPorCocineroDTO> comisiones = reporteService.listarComisionesPorCocinero(dniCocinero, inicio, fin);
+        return ResponseEntity.ok(comisiones);
     }
 }

@@ -5,53 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4c0d1863-d7c8-4f0d-8164-2ffe3b62f76c" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/dto/ComisionPorCocineroDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/dto/PedidoPorCocineroDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/dto/ProductoCocineroDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/dto/ProductoDTO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/controller/PedidoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/controller/PedidoController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/controller/ReporteController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/controller/ReporteController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/dto/ReporteResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/dto/ReporteResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/repository/PedidoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/repository/PedidoRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/service/ReporteService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pasteleriaBack/pasteleriaBack/service/ReporteService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/PasteleriaBackApplication.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/controller/AuditoriaController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/controller/ClienteController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/controller/EmpleadoController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/controller/HorarioAperturaCierreController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/controller/MotivoEliminacionPedidoController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/controller/PedidoController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/controller/PedidoProductoController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/controller/ProductoController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/exception/BusinessLogicException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/exception/ResourceNotFoundException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/model/Auditoria.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/model/Cliente.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/model/Empleado.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/model/EstadoEmpleadoENUM.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/model/EstadoEntregaENUM.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/model/EstadoPedidoENUM.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/model/EstadoProductoENUM.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/model/HorarioAperturaCierre.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/model/MotivoEliminacionPedido.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/model/Pedido.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/model/PedidoDomicilio.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/model/PedidoProducto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/model/PedidoProductoId.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/model/Producto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/model/RolEmpleadoENUM.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/repository/AuditoriaRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/repository/ClienteRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/repository/EmpleadoRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/repository/HorarioAperturaCierreRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/repository/MotivoEliminacionPedidoRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/repository/PedidoProductoRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/repository/PedidoRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/repository/ProductoRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/service/AuditoriaService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/service/ClienteService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/service/EmpleadoService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/service/HorarioAperturaCierreService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/service/MotivoEliminacionPedidoService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/service/PedidoProductoService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/service/PedidoService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/service/ProductoService.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/repository/PedidoRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/pasteleriaBack/pasteleriaBack/repository/PedidoRepository.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

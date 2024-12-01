@@ -1,9 +1,7 @@
 package com.pasteleriaBack.pasteleriaBack.service;
 
-import com.pasteleriaBack.pasteleriaBack.dto.Ingreso;
-import com.pasteleriaBack.pasteleriaBack.dto.ProductoMasSolicitado;
-import com.pasteleriaBack.pasteleriaBack.dto.PedidoPorCocinero;
-import com.pasteleriaBack.pasteleriaBack.dto.ReporteResponse;
+import com.pasteleriaBack.pasteleriaBack.dto.*;
+import com.pasteleriaBack.pasteleriaBack.model.Empleado;
 import com.pasteleriaBack.pasteleriaBack.model.EstadoPedidoENUM;
 import com.pasteleriaBack.pasteleriaBack.model.Pedido;
 import com.pasteleriaBack.pasteleriaBack.model.PedidoProducto;
@@ -128,4 +126,104 @@ public class ReporteService {
 
         return reporte;
     }
+
+    //REQUERIMIENTO 12: listar pedidos de cocinero
+    public List<PedidoPorCocineroDTO> listarPedidosPorCocinero(Integer dniCocinero, LocalDate fechaInicio, LocalDate fechaFin) {
+        // Convertir LocalDate a Timestamp
+        Timestamp inicio = Timestamp.valueOf(fechaInicio.atStartOfDay());
+        Timestamp fin = Timestamp.valueOf(fechaFin.atStartOfDay());
+
+        // Obtener el cocinero
+        Empleado cocinero = empleadoRepository.findById(dniCocinero).orElse(null);
+        if (cocinero == null) {
+            throw new RuntimeException("Cocinero no encontrado");
+        }
+
+        // Obtener pedidos del cocinero en el rango de fechas
+        List<Pedido> pedidos = pedidoRepository.findByEmpleadoAndPedFechaDeCreacionBetween(cocinero, inicio, fin);
+
+        // Crear la lista de DTOs para la respuesta
+        List<PedidoPorCocineroDTO> pedidosPorCocinero = new ArrayList<>();
+        for (Pedido pedido : pedidos) {
+            // Verificar si el estado del pedido es "enviado" o "retirado"
+            if (pedido.getPedEstado() == EstadoPedidoENUM.enviado || pedido.getPedEstado() == EstadoPedidoENUM.retirado) {
+                PedidoPorCocineroDTO dto = new PedidoPorCocineroDTO();
+                dto.setIdPedido(pedido.getPed_id());
+                dto.setFechaCreacion(pedido.getPedFechaDeCreacion());
+                dto.setFechaEntrega(pedido.getPedFechaDeEntrega());
+                dto.setMetodoEntrega(pedido.getPed_entrega().name());
+
+                // Obtener información del cliente
+                if (pedido.getCliente() != null) {
+                    dto.setClienteDni(pedido.getCliente().getCli_dni());
+                    dto.setClienteApellidoNombre(pedido.getCliente().getCli_apellidoNombre());
+                }
+
+                // Obtener productos y calcular el precio total
+                List<ProductoCocineroDTO> productos = new ArrayList<>();
+                double totalPedido = 0.0;
+                for (PedidoProducto pedidoProducto : pedido.getPedidoProductos()) {
+                    ProductoCocineroDTO productoDTO = new ProductoCocineroDTO();
+                    productoDTO.setProd_titulo(pedidoProducto.getProducto().getProd_titulo());
+                    productoDTO.setCantidad(pedidoProducto.getCantidad());
+                    productoDTO.setPrecioVenta(pedidoProducto.getPrecioVenta());
+                    double precioTotal = pedidoProducto.getPrecioVenta() * pedidoProducto.getCantidad();
+                    totalPedido += precioTotal; // Sumar al total del pedido
+                    productos.add(productoDTO);
+                }
+                dto.setProductos(productos);
+                dto.setTotalPedido(totalPedido);
+
+                pedidosPorCocinero.add(dto);
+            }
+        }
+        return pedidosPorCocinero;
+    }
+
+    //REQUERIMIENTO 13: comision por cocinero
+    public List<ComisionPorCocineroDTO> listarComisionesPorCocinero(Integer dniCocinero, LocalDate fechaInicio, LocalDate fechaFin) {
+        // Convertir LocalDate a Timestamp
+        Timestamp inicio = Timestamp.valueOf(fechaInicio.atStartOfDay());
+        Timestamp fin = Timestamp.valueOf(fechaFin.atStartOfDay());
+
+        // Obtener el cocinero
+        Empleado cocinero = empleadoRepository.findById(dniCocinero).orElse(null);
+        if (cocinero == null) {
+            throw new RuntimeException("Cocinero no encontrado");
+        }
+
+        // Obtener pedidos del cocinero en el rango de fechas
+        List<Pedido> pedidos = pedidoRepository.findByEmpleadoAndPedFechaDeCreacionBetween(cocinero, inicio, fin);
+
+        // Crear la lista de DTOs para la respuesta
+        List<ComisionPorCocineroDTO> comisiones = new ArrayList<>();
+        for (Pedido pedido : pedidos) {
+            // Verificar si el estado del pedido es "enviado" o "retirado"
+            if (pedido.getPedEstado() == EstadoPedidoENUM.enviado || pedido.getPedEstado() == EstadoPedidoENUM.retirado) {
+                ComisionPorCocineroDTO dto = new ComisionPorCocineroDTO();
+                dto.setIdPedido(pedido.getPed_id());
+                dto.setFechaCreacion(pedido.getPedFechaDeCreacion());
+                dto.setFechaEntrega(pedido.getPedFechaDeEntrega());
+                dto.setComision(pedido.getPorcentajeComisionPedidoActual());
+
+                // Obtener productos y mapear a ProductoDTO
+                List<ProductoDTO> productos = new ArrayList<>();
+                for (PedidoProducto pedidoProducto : pedido.getPedidoProductos()) {
+                    ProductoDTO productoDTO = new ProductoDTO();
+                    productoDTO.setCantidad(pedidoProducto.getCantidad());
+                    productoDTO.setPrecioVenta(pedidoProducto.getPrecioVenta());
+                    productoDTO.setProd_precioCosto(pedidoProducto.getPrecioCosto()); // Asumiendo que tienes acceso a este campo
+                    productoDTO.setProd_porcentajeDescuento(pedidoProducto.getProducto().getProd_porcentajeDescuento()); // Asumiendo que tienes acceso a este campo
+                    productoDTO.setProd_titulo(pedidoProducto.getProducto().getProd_titulo()); // Asumiendo que tienes acceso a este campo
+                    productos.add(productoDTO);
+                }
+                dto.setProductos(productos);
+
+                comisiones.add(dto);
+            }
+        }
+
+        return comisiones;
+    }
+
 }
