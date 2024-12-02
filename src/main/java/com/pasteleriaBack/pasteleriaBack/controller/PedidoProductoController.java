@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/pedidos-productos")
 public class PedidoProductoController {
@@ -21,5 +23,9 @@ public class PedidoProductoController {
         return ResponseEntity.ok(pedidoProductoService.crearPedidoProducto(pedidoProducto));
     }
 
-    // Otros métodos
+    @CrossOrigin
+    @GetMapping
+    public ResponseEntity<List<PedidoProducto>> listarPedidosProductos() {
+        return ResponseEntity.ok(pedidoProductoService.listarPedidosProductos());
+    }
 }
