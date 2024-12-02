@@ -39,7 +39,6 @@ public class ReporteService {
         return new ReporteResponse(ingresos, productosMasSolicitados, pedidosPorCocinero);
     }
 
-    //retorna la suma total de ingresos
     public Map<String, Double> generarReporteIngresos(LocalDate fechaInicio, LocalDate fechaFin) {
         // Convertir LocalDate a Timestamp
         Timestamp inicio = Timestamp.valueOf(fechaInicio.atStartOfDay());
@@ -58,27 +57,42 @@ public class ReporteService {
         Double totalIngresos = 0.0;
         Double totalCostos = 0.0;
         Double totalGanancias = 0.0;
+
         for (Pedido pedido : pedidos) {
+            // Reiniciar ingresos y costos para cada pedido
+            Double ingresosPedido = 0.0;
+            Double costosPedido = 0.0;
+
             for (PedidoProducto pedidoProducto : pedido.getPedidoProductos()) {
-                //calcular ingresos
+                // Calcular ingresos sin aplicar el descuento
                 Double ingreso = pedidoProducto.getPrecioVenta() * pedidoProducto.getCantidad();
-                totalIngresos += ingreso;
+                ingresosPedido += ingreso;
 
                 // Calcular costos
                 Double costo = pedidoProducto.getPrecioCosto() * pedidoProducto.getCantidad(); // Asegúrate de tener este método
-                totalCostos += costo;
+                costosPedido += costo;
             }
 
             // Calcular la comisión del pedido
-            Double comision = totalIngresos * (pedido.getPorcentajeComisionPedidoActual() / 100);
+            Double comision = ingresosPedido * (pedido.getPorcentajeComisionPedidoActual() / 100);
 
             // Calcular ganancias brutas
-            Double gananciasBrutas = totalIngresos - totalCostos;
+            Double gananciasBrutas = ingresosPedido - costosPedido;
 
-            // Calcular ganancias netas restando la comisión
-            Double gananciasNetas = gananciasBrutas - comision;
+            // Calcular el descuento total aplicado a las ganancias
+            Double descuentoTotal = 0.0;
+            for (PedidoProducto pedidoProducto : pedido.getPedidoProductos()) {
+                Double porcentajeDescuento = pedidoProducto.getProducto().getProd_porcentajeDescuento(); // Asegúrate de que este método devuelva el porcentaje de descuento
+                Double ingresoProducto = pedidoProducto.getPrecioVenta() * pedidoProducto.getCantidad();
+                descuentoTotal += ingresoProducto * (porcentajeDescuento / 100);
+            }
 
-            // Actualizar total de ganancias (puedes acumular o simplemente tomar el último)
+            // Calcular ganancias netas restando la comisión y el descuento total
+            Double gananciasNetas = gananciasBrutas - comision - descuentoTotal;
+
+            // Acumular totales
+            totalIngresos += ingresosPedido;
+            totalCostos += costosPedido;
             totalGanancias += gananciasNetas; // Si deseas acumular, inicializa totalGanancias antes del bucle
         }
 
