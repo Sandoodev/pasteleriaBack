@@ -55,6 +55,11 @@ public class Pedido {
 
     // Getters y Setters
 
+    @JsonProperty("cli_dni")
+    public Integer getCliDni() {
+        return cliente != null ? cliente.getCli_dni() : null;
+    }
+
     @JsonProperty("emp_dni")
     public Integer getEmpDni() {
         return empleado != null ? empleado.getEmp_dni() : null;
